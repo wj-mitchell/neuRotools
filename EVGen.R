@@ -4,8 +4,8 @@
 # long we want those observations to be, and then produce onset files which we can feed into FSL for analysis. 
 # It will automatically identify the source script the data came from and change the analysis as needed. 
 EVGen <- function(PIDs, # List containing the PIDs that must be cleaned
-                  ReadDir = "C:/Users/wjpmi/Dropbox/My PC (UncleSplashysSaddnessEmporium)/Desktop/", # String containing the working directory the raw data is contained within
-                  WriteDir = "C:/Users/wjpmi/Dropbox/My PC (UncleSplashysSaddnessEmporium)/Desktop/", # String containing the directory the onset files should be written to. 
+                  ReadDir = "/data/Uncertainty/data/behav", # String containing the working directory the raw data is contained within
+                  WriteDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep", # String containing the directory the onset files should be written to. 
                   unit_secs = 60, # A numeric value denoting the interval of time, in seconds, that output should be displayed in.
                                   # Data was collected frame-by-frame. A value of NA would produce unaveraged, raw output. A value of 1
                                   # would yield data averaged on a second by second basis. A value of 60 would yield data averaged on a 
