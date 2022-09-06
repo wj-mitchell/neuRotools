@@ -397,7 +397,7 @@ EVGen <- function(PIDs, # List containing the PIDs that must be cleaned
       EV_File$Duration <- unit_secs
       
       # Adding a parametric modulation column
-      if (!is.na(ParaMod) & is.numeric(ParaMod) & (length(ParaMod) == 1 | length(ParaMod) == nrow(EV_File))){
+      if (!is.na(para_mod) & is.numeric(para_mod) & (length(para_mod) == 1 | length(para_mod) == nrow(EV_File))){
         EV_File$ParaMod <- para_mod
       }
       
