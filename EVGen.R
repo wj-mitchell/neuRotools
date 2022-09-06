@@ -10,9 +10,12 @@ EVGen <- function(PIDs, # List containing the PIDs that must be cleaned
                                   # Data was collected frame-by-frame. A value of NA would produce unaveraged, raw output. A value of 1
                                   # would yield data averaged on a second by second basis. A value of 60 would yield data averaged on a 
                                   # minute by minute basis, etc.
-                  shave_secs = 17) # A numeric value denoting the interval of time, in seconds, that should be ignored/removed from the 
+                  shave_secs = 17, # A numeric value denoting the interval of time, in seconds, that should be ignored/removed from the 
                                    # beginning of data collection. So, for example, the first few seconds of naturalistic stimuli, if not
                                    # captured using a checkerboard first, should probably be ignored in fMRI research. 
+                  para_mod = 1) # A single numeric value or an array of numeric values equal to the number of trials in this run or dataset representing
+                                # the parametric modulation value (column 3) in the typical 3 column onset file. Setting it to 1 will turn off parametric
+                                # modulation. Needs further development in the future.
 {
   # Setup ----
   ## Package Loading ----
@@ -394,7 +397,9 @@ EVGen <- function(PIDs, # List containing the PIDs that must be cleaned
       EV_File$Duration <- unit_secs
       
       # Adding a parametric modulation column
-      EV_File$ParaMod <- 1
+      if (!is.na(ParaMod) & is.numeric(ParaMod) & (length(ParaMod) == 1 | length(ParaMod) == nrow(EV_File))){
+        EV_File$ParaMod <- para_mod
+      }
       
       # Adding a change variable
       EV_File$Change <- NA
@@ -427,6 +432,9 @@ EVGen <- function(PIDs, # List containing the PIDs that must be cleaned
         dir.create(paste0(WriteDir, "/sub-", PID, "/onset"))
       }
       
+     write.csv(EV_File,
+               file = paste0(WriteDir, "/sub-", PID, "/onset/trials.txt"))
+      
       write.table(subset(EV_File,
                          EV_File$Change == "No Change",
                          select = c(SecondStart, Duration, ParaMod)),
@@ -450,34 +458,6 @@ EVGen <- function(PIDs, # List containing the PIDs that must be cleaned
                   sep = "\t",
                   row.names = FALSE, 
                   col.names = FALSE)
-      
-      write.table(subset(EV_File,
-                         EV_File$CertStat == "Neutral",
-                         select = c(SecondStart, Duration, ParaMod)),
-                  file = paste0(WriteDir, "/sub-", PID, "/onset/neutral.txt"),
-                  sep = "\t",
-                  row.names = FALSE, 
-                  col.names = FALSE)
-      
-      write.table(subset(EV_File,
-                         EV_File$CertStat == "Guilty",
-                         select = c(SecondStart, Duration, ParaMod)),
-                  file = paste0(WriteDir, "/sub-", PID, "/onset/guilty.txt"),
-                  sep = "\t",
-                  row.names = FALSE, 
-                  col.names = FALSE)
-      
-      write.table(subset(EV_File,
-                         EV_File$CertStat == "Innocent",
-                         select = c(SecondStart, Duration, ParaMod)),
-                  file = paste0(WriteDir, "/sub-", PID, "/onset/innocent.txt"),
-                  sep = "\t",
-                  row.names = FALSE, 
-                  col.names = FALSE)
-                    
-                    
-                    
-
     }
   }
 }
