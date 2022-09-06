@@ -433,7 +433,7 @@ EVGen <- function(PIDs, # List containing the PIDs that must be cleaned
       }
       
      write.csv(EV_File,
-               file = paste0(WriteDir, "/sub-", PID, "/onset/trials.txt"))
+               file = paste0(WriteDir, "/sub-", PID, "/onset/trials.csv"))
       
       write.table(subset(EV_File,
                          EV_File$Change == "No Change",
