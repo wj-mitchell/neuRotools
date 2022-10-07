@@ -4,7 +4,8 @@ GenOnsets <- function(PIDs,
                       Tasks = c("3_task-1", "5_task-2"),
                       TR = 2,
                       RawDir = "/data/Uncertainty/data/raw/",
-                      DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep"){
+                      DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
+                      TrialLevel = T){
  
   # QA Checks
   # Checking TR
@@ -81,29 +82,63 @@ GenOnsets <- function(PIDs,
       
       # Set our working directory to that onset directory
       setwd(paste0(DerivDir, "/sub-", PID, "/","onset"))
+     
+      # If we want trial-level data ...
+      if (TrialLevel = T){
       
-      # If we're working with the first half video ...
-      if (Task == "3_task-1"){
-        
-        # Save our dataframe as a text file with this name
-        write.table(df_temp,
-                    paste0("sub-", PID, "_task-uncertainty_run-1_timing.txt"),
-                    sep = "\t",
-                    row.names = FALSE,
-                    col.names = FALSE)
+        # Iterate through each row in the new dataframe
+        for (ROW in 1:nrow(df_temp)){   
+
+          # If we're working with the first half video ...
+          if (Task == "3_task-1"){
+
+            # Save only the target row (which is a single observation) of our dataframe as a text file with this name
+            write.table(df_temp[ROW,],
+                        paste0("sub-", PID, "_task-uncertainty_run-1_min-", ROW,"_timing.txt"),
+                        sep = "\t",
+                        row.names = FALSE,
+                        col.names = FALSE)
+          }
+
+          # If we're working with the second half video ...
+          if (Task == "5_task-2"){
+
+            # Save the target row of our dataframe as a text file with a slightly different name
+            write.table(df_temp[ROW,],
+                        paste0("sub-", PID, "_task-uncertainty_run-2_min-", ROW,"_timing.txt"),
+                        sep = "\t",
+                        row.names = FALSE,
+                        col.names = FALSE)
+          }
+         }
+        }
+      
+      # If we don't want trial-level data ...
+      if (TrialLevel = F){
+      
+        # If we're working with the first half video ...
+        if (Task == "3_task-1"){
+
+          # Save only the target row (which is a single observation) of our dataframe as a text file with this name
+          write.table(df_temp[ROW,],
+                      paste0("sub-", PID, "_task-uncertainty_run-1_timing.txt"),
+                      sep = "\t",
+                      row.names = FALSE,
+                      col.names = FALSE)
       }
-      
+
       # If we're working with the second half video ...
       if (Task == "5_task-2"){
-        
-        # Save our dataframe as a text file with a slightly different name
-        write.table(df_temp,
+
+        # Save the target row of our dataframe as a text file with a slightly different name
+        write.table(df_temp[ROW,],
                     paste0("sub-", PID, "_task-uncertainty_run-2_timing.txt"),
                     sep = "\t",
                     row.names = FALSE,
                     col.names = FALSE)
       }
-      
+     }
+            
       # Cleaning Space
       rm(df_temp, nFiles, onset, paramod, duration)
     }
