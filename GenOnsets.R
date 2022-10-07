@@ -84,7 +84,7 @@ GenOnsets <- function(PIDs,
       setwd(paste0(DerivDir, "/sub-", PID, "/","onset"))
      
       # If we want trial-level data ...
-      if (TrialLevel = T){
+      if (TrialLevel == T){
       
         # Iterate through each row in the new dataframe
         for (ROW in 1:nrow(df_temp)){   
@@ -114,7 +114,7 @@ GenOnsets <- function(PIDs,
         }
       
       # If we don't want trial-level data ...
-      if (TrialLevel = F){
+      if (TrialLevel == F){
       
         # If we're working with the first half video ...
         if (Task == "3_task-1"){
