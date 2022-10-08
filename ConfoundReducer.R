@@ -6,7 +6,11 @@
 ConfoundReducer <- function(PIDs,
                              dir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                              runs = 2,
-                             task = "uncertainty"){
+                             task = "uncertainty",
+                              confounds <- c("a_comp_cor_00","a_comp_cor_01","a_comp_cor_02","a_comp_cor_03",
+                                            "a_comp_cor_04","a_comp_cor_05", names(df)[grep(x= names(df), pattern = "^cosine*")],
+                                            "trans_x","trans_y", "trans_z","rot_x","rot_y","rot_z", "framewise_displacement")
+                           ){
 
   # Check whether this file path is valid.
   if (!dir.exists(dir)){
@@ -59,12 +63,7 @@ ConfoundReducer <- function(PIDs,
                           sep = '\t',
                           header = T,
                           na.strings = c("","NA","n/a"))
-          
-          # List of confounds
-          confounds <- c("a_comp_cor_00","a_comp_cor_01","a_comp_cor_02","a_comp_cor_03",
-                        "a_comp_cor_04","a_comp_cor_05", names(df)[grep(x= names(df), pattern = "^cosine*")],
-                        "trans_x","trans_y", "trans_z","rot_x","rot_y","rot_z", "framewise_displacement")
-          
+                   
           # Subset the desired columns
           df <- subset(df, select = confounds)
           
