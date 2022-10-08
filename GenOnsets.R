@@ -99,7 +99,7 @@ GenOnsets <- function(PIDs,
                                  shave_secs = 17) %>%
                         subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
                         abs() %>% 
-                        scale() %>%
+                        scale(scale = T, center = T) %>%
                         as.numeric()
           }
           
