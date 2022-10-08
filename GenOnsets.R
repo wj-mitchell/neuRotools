@@ -137,10 +137,10 @@ GenOnsets <- function(PIDs,
       
       # Writing an onset file for the spinning checkerboard 
       write.table(data.frame(x=c(seq(30, 
-                                     60,
+                                     60 - TR,
                                      TR),
-                                 seq((nFiles * TR) - 60,
-                                     (nFiles * TR) - 30, 
+                                 seq((((nFiles - 1) * TR) + 1) - 60,
+                                     (((nFiles - 1) * TR) + 1) - 30 - TR, 
                                      TR)), 
                              y=TR,
                              z=1),
