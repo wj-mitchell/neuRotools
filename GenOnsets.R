@@ -86,7 +86,7 @@ GenOnsets <- function(PIDs,
                                full.names = F,
                                pattern = paste0("^certainty_neuro_SR-", sprintf("%04d", PID), ".*\\.csv$"))
       
-      if (ParaMod = T & ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1")))){
+      if (ParaMod == T & ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1")))){
         paramod <- rucleaner(file = behav_file,
                               dir = ReadDir,
                               unit_secs = 2,
@@ -96,7 +96,7 @@ GenOnsets <- function(PIDs,
       }
 
       # Set parametric modulation to the behavioral correlate
-      if (ParaMod = F | ((str_detect(behav_file, "condB") & str_detect(Task, "task-1")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-2")))){
+      if (ParaMod == F | ((str_detect(behav_file, "condB") & str_detect(Task, "task-1")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-2")))){
         paramod <- rep(1, length(onset))
       }
 
