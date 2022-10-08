@@ -92,13 +92,15 @@ GenOnsets <- function(PIDs,
           # and if this is the run that participants actually gave ratings for
           if ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1"))){
             
-            # Set parametric modulation to the behavioral correlate
+            # Set parametric modulation to the mean-centered behavioral correlate
             paramod <- rucleaner(file = behav_file,
                                  dir = BehavDir,
                                  unit_secs = 2,
                                  shave_secs = 17) %>%
                         subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
-                        abs()
+                        abs() %>% 
+                        scale() %>%
+                        as.numeric()
           }
           
           # But if this is another run ....
