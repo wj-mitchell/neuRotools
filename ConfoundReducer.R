@@ -9,7 +9,7 @@ ConfoundReducer <- function(PIDs,
                              task = "uncertainty",
                              confounds = c("a_comp_cor_00","a_comp_cor_01","a_comp_cor_02","a_comp_cor_03",
                                             "a_comp_cor_04","a_comp_cor_05", names(df)[grep(x= names(df), pattern = "^cosine*")],
-                                            "trans_x","trans_y", "trans_z","rot_x","rot_y","rot_z", "framewise_displacement")
+                                            "trans_x","trans_y", "trans_z","rot_x","rot_y","rot_z", "framewise_displacement", "dvars", "tcompcor")
                            ){
 
   # Check whether this file path is valid.
