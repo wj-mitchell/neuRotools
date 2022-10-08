@@ -121,7 +121,7 @@ GenOnsets <- function(PIDs,
       if (is_empty(behav_file)){
         
         # Move on to the next iteration
-        Next
+        next
       }
       
       # Or just set it to '1'
