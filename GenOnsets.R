@@ -82,7 +82,7 @@ GenOnsets <- function(PIDs,
       duration <- rep(TR, length(onset))
       
       # Import the dataframe containing this participants behavioral correlate
-      behav_file <- list.files(path = ReadDir,
+      behav_file <- list.files(path = BehavDir,
                                full.names = F,
                                pattern = paste0("^certainty_neuro_SR-", sprintf("%04d", PID), ".*\\.csv$"))
       
