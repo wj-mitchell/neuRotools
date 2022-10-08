@@ -132,8 +132,12 @@ GenOnsets <- function(PIDs,
       # Concatenate onset, duration and parametric modulation into a dataframe
       df_temp <- data.frame(onset, duration, paramod)
       
-      # Create a new directory in the participant's raw files called "Onset"
-      dir.create(paste0(DerivDir, "/sub-", PID, "/","onset"))
+      # If an onset directory doesn't already exist
+      if (!dir.exists(paste0(DerivDir, "/sub-", PID, "/","onset")){
+      
+        # Create a new directory in the participant's raw files called "Onset"
+        dir.create(paste0(DerivDir, "/sub-", PID, "/","onset"))
+      }
       
       # Set our working directory to that onset directory
       setwd(paste0(DerivDir, "/sub-", PID, "/","onset"))
