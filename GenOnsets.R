@@ -43,6 +43,7 @@ GenOnsets <- function(PIDs,
     if (!dir.exists(paste0(RawDir, "/sub-", PID))){
       stop(paste("No DICOM directory could be found for participant", PID, ". Perhaps their data has not been downloaded yet. Please check your filepaths or PIDs and try again." ))
     }
+    
     if (!dir.exists(paste0(DerivDir, "/sub-", PID))){
       stop(paste("No NiFTi directory could be found for participant", PID, ". Perhaps their data has not been pre-processed yet. Please check your filepaths or PIDs and try again." ))
     }
@@ -80,7 +81,8 @@ GenOnsets <- function(PIDs,
       duration <- rep(TR, length(task_onset))
       
       # Import the dataframe containing this participants behavioral correlate
-      behav <- read.csv(paste0(BehavDir,"/" PID      
+      behav <- rucleaner()
+                               
       # Set parametric modulation to the behavioral correlate
       paramod <- rep(1, length(task_onset))
       
