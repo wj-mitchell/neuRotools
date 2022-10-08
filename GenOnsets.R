@@ -106,10 +106,11 @@ GenOnsets <- function(PIDs,
       # Set our working directory to that onset directory
       setwd(paste0(DerivDir, "/sub-", PID, "/","onset"))
       
+      #Tracking which rows denote the start of a new trial 
       rows <- seq(1,nrow(df_temp), 60/TR)
       
-      # Iterate through each row in the new dataframe
-      for (TRIAL in rows){   
+      # Iterate through each row that starts a new trial in the new dataframe
+      for (TRIAL in 1:length(rows)){   
         
         # If we're working with the first half video ...
         if (Task == "3_task-1"){
