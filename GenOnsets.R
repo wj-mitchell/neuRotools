@@ -83,17 +83,20 @@ GenOnsets <- function(PIDs,
                                full.names = F,
                                pattern = paste0("^certainty_neuro_SR-", PID, ".*\\.csv$"))
       
-      if (ParaMod == T & ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1")))){
-        paramod <- rucleaner(file = behav_file,
-                              dir = BehavDir,
-                              unit_secs = 2,
-                              shave_secs = 17) %>%
-                    subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
-                    abs()
+      # Set parametric modulation to the behavioral correlate
+      if (ParaMod == T & !is_empty(behav_file)){
+        if ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1"))){
+          paramod <- rucleaner(file = behav_file,
+                                dir = BehavDir,
+                                unit_secs = 2,
+                                shave_secs = 17) %>%
+                      subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
+                      abs()
+        }
       }
       
-      # Set parametric modulation to the behavioral correlate
-      if (ParaMod == F | ((str_detect(behav_file, "condB") & str_detect(Task, "task-1")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-2")))){
+      # Or just set it to '1'
+      if (is_empty(behav_file) | ParaMod == F | ((str_detect(behav_file, "condB") & str_detect(Task, "task-1")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-2")))){
         paramod <- rep(1, length(onset))
       }
       
