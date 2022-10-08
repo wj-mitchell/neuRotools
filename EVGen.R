@@ -6,6 +6,7 @@
 EVGen <- function(PIDs, # List containing the PIDs that must be cleaned
                   ReadDir = "/data/Uncertainty/data/behav", # String containing the working directory the raw data is contained within
                   WriteDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep", # String containing the directory the onset files should be written to. 
+                  TR = 2, # Repetition time; the duration of each trial
                   unit_secs = 60, # A numeric value denoting the interval of time, in seconds, that output should be displayed in.
                                   # Data was collected frame-by-frame. A value of NA would produce unaveraged, raw output. A value of 1
                                   # would yield data averaged on a second by second basis. A value of 60 would yield data averaged on a 
@@ -13,7 +14,7 @@ EVGen <- function(PIDs, # List containing the PIDs that must be cleaned
                   shave_secs = 17, # A numeric value denoting the interval of time, in seconds, that should be ignored/removed from the 
                                    # beginning of data collection. So, for example, the first few seconds of naturalistic stimuli, if not
                                    # captured using a checkerboard first, should probably be ignored in fMRI research. 
-                  para_mod = 1) # A single numeric value or an array of numeric values equal to the number of trials in this run or dataset representing
+                  para_mod = "Rating") # A single numeric value or an array of numeric values equal to the number of trials in this run or dataset representing
                                 # the parametric modulation value (column 3) in the typical 3 column onset file. Setting it to 1 will turn off parametric
                                 # modulation. Needs further development in the future.
 {
