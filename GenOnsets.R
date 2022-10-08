@@ -6,7 +6,6 @@ GenOnsets <- function(PIDs,
                       RawDir = "/data/Uncertainty/data/raw/",
                       BehavDir = "/data/Uncertainty/data/behav/",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
-                      TrialLevel = T,
                       ParaMod = T){
  
   # QA Checks
@@ -82,13 +81,13 @@ GenOnsets <- function(PIDs,
       duration <- rep(TR, length(onset))
       
       # Import the dataframe containing this participants behavioral correlate
-      behav_file <- list.files(path = ReadDir,
+      behav_file <- list.files(path = BehavDir,
                                full.names = F,
-                               pattern = paste0("^certainty_neuro_SR-", sprintf("%04d", PID), ".*\\.csv$"))
+                               pattern = paste0("^certainty_neuro_SR-", PID, ".*\\.csv$"))
       
-      if (ParaMod = T & ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1")))){
+      if (ParaMod == T & ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1")))){
         paramod <- rucleaner(file = behav_file,
-                              dir = ReadDir,
+                              dir = BehavDir,
                               unit_secs = 2,
                               shave_secs = 17) %>%
                     subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
@@ -96,7 +95,7 @@ GenOnsets <- function(PIDs,
       }
 
       # Set parametric modulation to the behavioral correlate
-      if (ParaMod = F | ((str_detect(behav_file, "condB") & str_detect(Task, "task-1")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-2")))){
+      if (ParaMod == F | ((str_detect(behav_file, "condB") & str_detect(Task, "task-1")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-2")))){
         paramod <- rep(1, length(onset))
       }
 
@@ -118,7 +117,7 @@ GenOnsets <- function(PIDs,
         if (Task == "3_task-1"){
 
           # Save only the target row (which is a single observation) of our dataframe as a text file with this name
-          write.table(df_temp[rows[TRIAL]:rows[(TRIAL + 29)],],
+          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + 29),],
                       paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL,"_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
@@ -129,7 +128,7 @@ GenOnsets <- function(PIDs,
         if (Task == "5_task-2"){
 
           # Save the target row of our dataframe as a text file with a slightly different name
-          write.table(df_temp[rows[TRIAL]:rows[(TRIAL + 29)],],
+          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + 29),],
                       paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL ,"_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
