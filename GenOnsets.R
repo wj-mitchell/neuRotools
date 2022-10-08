@@ -133,7 +133,7 @@ GenOnsets <- function(PIDs,
       df_temp <- data.frame(onset, duration, paramod)
       
       # If an onset directory doesn't already exist
-      if (!dir.exists(paste0(DerivDir, "/sub-", PID, "/","onset")){
+      if (!dir.exists(paste0(DerivDir, "/sub-", PID, "/","onset"))){
       
         # Create a new directory in the participant's raw files called "Onset"
         dir.create(paste0(DerivDir, "/sub-", PID, "/","onset"))
