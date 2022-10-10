@@ -2,8 +2,8 @@ GenOnsets <- function(PIDs,
                       Tasks = c("3_task-1", "5_task-2"),
                       TR = 2,
                       EVs,
-                      RawDir = "/data/Uncertainty/data/raw/",
-                      BehavDir = "S:/Helion_Group/studies/uncertainty/studies_neuro/data/task/",
+                      RawDir = "/data/Uncertainty/data/raw",
+                      BehavDir = "/data/Uncertainty/data/behav",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                       ParaMod = T){
  
