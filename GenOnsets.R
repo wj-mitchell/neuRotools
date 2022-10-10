@@ -1,8 +1,9 @@
 GenOnsets <- function(PIDs,
                       Tasks = c("3_task-1", "5_task-2"),
                       TR = 2,
+                      EVs,
                       RawDir = "/data/Uncertainty/data/raw/",
-                      BehavDir = "/data/Uncertainty/data/behav/",
+                      BehavDir = "S:/Helion_Group/studies/uncertainty/studies_neuro/data/task/",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                       ParaMod = T){
  
@@ -145,7 +146,7 @@ GenOnsets <- function(PIDs,
       setwd(paste0(DerivDir, "/sub-", PID, "/","onset"))
       
       #Tracking which rows denote the start of a new trial 
-      rows <- seq(1,nrow(df_temp), 60/TR)
+      rows <- seq(1, nrow(df_temp), nrow(df_temp) / EVs)
       
       # Iterate through each row that starts a new trial in the new dataframe
       for (TRIAL in 1:length(rows)){   
@@ -154,7 +155,7 @@ GenOnsets <- function(PIDs,
         if (Task == "3_task-1"){
           
           # Save only the target row (which is a single observation) of our dataframe as a text file with this name
-          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + 29),],
+          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
                       paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL,"_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
@@ -165,7 +166,7 @@ GenOnsets <- function(PIDs,
         if (Task == "5_task-2"){
           
           # Save the target row of our dataframe as a text file with a slightly different name
-          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + 29),],
+          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
                       paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL ,"_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
