@@ -154,16 +154,30 @@ GenOnsets <- function(PIDs,
         # If we're working with the first half video ...
         if (Task == "3_task-1"){
           
-          # Save only the target row (which is a single observation) of our dataframe as a text file with this name
-          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
-                      paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL,"_timing.txt"),
-                      sep = "\t",
-                      row.names = FALSE,
-                      col.names = FALSE)
+          if (EVs != 1){
+          
+            # Save only the target row (which is a single observation) of our dataframe as a text file with this name
+            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
+                        paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL,"_timing.txt"),
+                        sep = "\t",
+                        row.names = FALSE,
+                        col.names = FALSE)
+            }
+           if (EVs == 1){
+          
+            # Save only the target row (which is a single observation) of our dataframe as a text file with this name
+            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
+                        paste0("sub-", PID, "_task-uncertainty_run-1_timing.txt"),
+                        sep = "\t",
+                        row.names = FALSE,
+                        col.names = FALSE)
+           }
         }
         
         # If we're working with the second half video ...
         if (Task == "5_task-2"){
+                    
+          if (EVs != 1){
           
           # Save the target row of our dataframe as a text file with a slightly different name
           write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
@@ -171,6 +185,16 @@ GenOnsets <- function(PIDs,
                       sep = "\t",
                       row.names = FALSE,
                       col.names = FALSE)
+          }
+          if (EVs == 1){
+          
+          # Save the target row of our dataframe as a text file with a slightly different name
+          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
+                      paste0("sub-", PID, "_task-uncertainty_run-2_timing.txt"),
+                      sep = "\t",
+                      row.names = FALSE,
+                      col.names = FALSE)
+          }
         }
       }
       
