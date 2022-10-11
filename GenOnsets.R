@@ -5,7 +5,7 @@ GenOnsets <- function(PIDs,
                       RawDir = "/data/Uncertainty/data/raw",
                       BehavDir = "/data/Uncertainty/data/behav",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
-                      ParaMod = T
+                      ParaMod = T,
                       Baseline = F){
  
   # QA Checks
