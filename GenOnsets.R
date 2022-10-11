@@ -5,7 +5,8 @@ GenOnsets <- function(PIDs,
                       RawDir = "/data/Uncertainty/data/raw",
                       BehavDir = "/data/Uncertainty/data/behav",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
-                      ParaMod = T){
+                      ParaMod = T
+                      Baseline = F){
  
   # QA Checks
   # Checking TR
@@ -198,20 +199,21 @@ GenOnsets <- function(PIDs,
         }
       }
       
-      # Writing an onset file for the spinning checkerboard 
-      write.table(data.frame(x=c(seq(30, 
-                                     60 - TR,
-                                     TR),
-                                 seq((((nFiles - 1) * TR) + 1) - 60,
-                                     (((nFiles - 1) * TR) + 1) - 30 - TR, 
-                                     TR)), 
-                             y=TR,
-                             z=1),
-                  paste0("sub-", PID, "_task-uncertainty_CB_timing.txt"),
-                  sep = "\t",
-                  row.names = FALSE,
-                  col.names = FALSE)
-      
+      if (Baseline = T){
+        # Writing an onset file for the spinning checkerboard 
+        write.table(data.frame(x=c(seq(30, 
+                                       60 - TR,
+                                       TR),
+                                   seq((((nFiles - 1) * TR) + 1) - 60,
+                                       (((nFiles - 1) * TR) + 1) - 30 - TR, 
+                                       TR)), 
+                               y=TR,
+                               z=1),
+                    paste0("sub-", PID, "_task-uncertainty_CB_timing.txt"),
+                    sep = "\t",
+                    row.names = FALSE,
+                    col.names = FALSE)
+      }
       # Cleaning Space
       rm(df_temp, nFiles, onset, paramod, duration)
     }
