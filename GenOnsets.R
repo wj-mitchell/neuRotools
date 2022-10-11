@@ -8,7 +8,8 @@ GenOnsets <- function(PIDs,
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                       ParaMod = T,
                       Baseline = F,
-                      Suffix = ""){
+                      Suffix = "",
+                      SeparateFiles = F){
  
   # QA Checks
   # Checking TR
@@ -138,14 +139,21 @@ GenOnsets <- function(PIDs,
       # Set our working directory to that onset directory
       setwd(paste0(DerivDir, "/sub-", PID, "/","onset"))
       
-      #Tracking which rows denote the start of a new trial 
-      rows <- seq(1, nrow(df_temp), nrow(df_temp) / Trials)
+      if (SeparateFiles == T){
+        #Tracking which rows denote the start of a new trial 
+        rows <- seq(1, nrow(df_temp), nrow(df_temp) / Trials)
+      }
+      
+      if (SeparateFiles == F){
+        #Tracking which rows denote the start of a new trial 
+        rows <- 1
+      }
       
       # Iterate through each row that starts a new trial in the new dataframe
       for (TRIAL in 1:length(rows)){   
         # If we're working with the first half video ...
         if (Task == "3_task-1"){
-          if (Trials != 1){
+          if (length(rows) != 1){
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
                         paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL, Suffix ,"_timing.txt"),
@@ -154,7 +162,7 @@ GenOnsets <- function(PIDs,
                         col.names = FALSE)
             }
           
-          if (Trials == 1){
+          if (length(rows) == 1){
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
                         paste0("sub-", PID, "_task-uncertainty_run-1", Suffix ,"_timing.txt"),
@@ -166,7 +174,7 @@ GenOnsets <- function(PIDs,
         
         # If we're working with the second half video ...
         if (Task == "5_task-2"){
-          if (Trials != 1){
+          if (length(rows) != 1){
             # Save the target row of our dataframe as a text file with a slightly different name
             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
                         paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL , Suffix ,"_timing.txt"),
@@ -174,7 +182,7 @@ GenOnsets <- function(PIDs,
                         row.names = FALSE,
                         col.names = FALSE)
           }
-          if (Trials == 1){
+          if (length(rows) == 1){
             # Save the target row of our dataframe as a text file with a slightly different name
             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
                         paste0("sub-", PID, "_task-uncertainty_run-2_timing", Suffix ,".txt"),
