@@ -164,7 +164,7 @@ GenOnsets <- function(PIDs,
           
           if (length(rows) == 1){
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
-            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
+            write.table(df_temp,
                         paste0("sub-", PID, "_task-uncertainty_run-1", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
@@ -184,7 +184,7 @@ GenOnsets <- function(PIDs,
           }
           if (length(rows) == 1){
             # Save the target row of our dataframe as a text file with a slightly different name
-            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
+            write.table(df_temp,
                         paste0("sub-", PID, "_task-uncertainty_run-2", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
