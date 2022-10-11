@@ -7,7 +7,8 @@ GenOnsets <- function(PIDs,
                       BehavDir = "/data/Uncertainty/data/behav",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                       ParaMod = T,
-                      Baseline = F){
+                      Baseline = F,
+                      Suffix = ""){
  
   # QA Checks
   # Checking TR
@@ -160,7 +161,7 @@ GenOnsets <- function(PIDs,
           
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
-                        paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL,"_timing.txt"),
+                        paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL, Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
@@ -169,7 +170,7 @@ GenOnsets <- function(PIDs,
           if (Trials == 1){
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
-                        paste0("sub-", PID, "_task-uncertainty_run-1_timing.txt"),
+                        paste0("sub-", PID, "_task-uncertainty_run-1", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
@@ -183,7 +184,7 @@ GenOnsets <- function(PIDs,
           
           # Save the target row of our dataframe as a text file with a slightly different name
           write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
-                      paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL ,"_timing.txt"),
+                      paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL , Suffix ,"_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
                       col.names = FALSE)
@@ -192,7 +193,7 @@ GenOnsets <- function(PIDs,
           
           # Save the target row of our dataframe as a text file with a slightly different name
           write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
-                      paste0("sub-", PID, "_task-uncertainty_run-2_timing.txt"),
+                      paste0("sub-", PID, "_task-uncertainty_run-2_timing", Suffix ,".txt"),
                       sep = "\t",
                       row.names = FALSE,
                       col.names = FALSE)
@@ -210,7 +211,7 @@ GenOnsets <- function(PIDs,
                                        TR)), 
                                y=TR,
                                z=1),
-                    paste0("sub-", PID, "_task-uncertainty_CB_timing.txt"),
+                    paste0("sub-", PID, "_task-uncertainty_CB", Suffix ,"_timing.txt"),
                     sep = "\t",
                     row.names = FALSE,
                     col.names = FALSE)
