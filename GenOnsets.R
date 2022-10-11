@@ -199,7 +199,7 @@ GenOnsets <- function(PIDs,
         }
       }
       
-      if (Baseline = T){
+      if (Baseline == T){
         # Writing an onset file for the spinning checkerboard 
         write.table(data.frame(x=c(seq(30, 
                                        60 - TR,
