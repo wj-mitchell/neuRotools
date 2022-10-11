@@ -4,7 +4,7 @@ GenOnsets <- function(PIDs,
                       Trial_Length = 60,
                       Trials = 22,
                       RawDir = "/data/Uncertainty/data/raw",
-                      BehavDir = "/data/Uncertainty/data/behav",
+                      BehavDir = "/data/Uncertainty/data/behav/",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                       ParaMod = T,
                       Baseline = F,
@@ -66,17 +66,14 @@ GenOnsets <- function(PIDs,
       
       # If the participant's uncertainty task has 759 files 
       if (nFiles == 759){
-        
         # Create an onset sequence that removes the first 90 and last 90 seconds 
-        onset <- seq(107, (nFiles * TR) - 90 - Trial_Length, Trials)
-        
+        onset <- seq(107, (nFiles * TR) - 90 - Trial_Length, Trial_Length)
       }
       
       # If the participant's uncertainty task has 729 files
       if (nFiles == 729){
-        
         # Create an onset sequence that removes the first 60 and last 60 seconds
-        onset <- seq(77, (nFiles * TR) - 60 - Trial_Length, Trials)
+        onset <- seq(77, (nFiles * TR) - 60 - Trial_Length, Trial_Length)
       }
       
       # Create a duration sequence equal to the TR across the board
@@ -89,13 +86,10 @@ GenOnsets <- function(PIDs,
       
       # If the behavioral correlate file exists
       if (!is_empty(behav_file)){
-        
         # and if we want to use it as a parametric modulator
         if (ParaMod == T){
-          
           # and if this is the run that participants actually gave ratings for
           if ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1"))){
-            
             # Set parametric modulation to the mean-centered behavioral correlate
             paramod <- rucleaner(file = behav_file,
                                  dir = BehavDir,
@@ -109,7 +103,6 @@ GenOnsets <- function(PIDs,
           
           # But if this is another run ....
           if ((str_detect(behav_file, "condB") & str_detect(Task, "task-1")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-2"))){
-            
             # just set it to '1'
             paramod <- rep(1, length(onset))
           }
@@ -117,7 +110,6 @@ GenOnsets <- function(PIDs,
         
         # Also, if we don't want to use the behavioral correalte as the parametric modulator
         if (ParaMod == F){
-           
           # just set it to '1'
            paramod <- rep(1, length(onset))
          }
@@ -125,7 +117,6 @@ GenOnsets <- function(PIDs,
       
       # And if we don't have the behavioral data
       if (is_empty(behav_file)){
-        
         # Move on to the next iteration
         next
       }
@@ -140,7 +131,6 @@ GenOnsets <- function(PIDs,
       
       # If an onset directory doesn't already exist
       if (!dir.exists(paste0(DerivDir, "/sub-", PID, "/","onset"))){
-      
         # Create a new directory in the participant's raw files called "Onset"
         dir.create(paste0(DerivDir, "/sub-", PID, "/","onset"))
       }
@@ -153,12 +143,9 @@ GenOnsets <- function(PIDs,
       
       # Iterate through each row that starts a new trial in the new dataframe
       for (TRIAL in 1:length(rows)){   
-        
         # If we're working with the first half video ...
         if (Task == "3_task-1"){
-          
           if (Trials != 1){
-          
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
                         paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL, Suffix ,"_timing.txt"),
@@ -179,24 +166,21 @@ GenOnsets <- function(PIDs,
         
         # If we're working with the second half video ...
         if (Task == "5_task-2"){
-                    
           if (Trials != 1){
-          
-          # Save the target row of our dataframe as a text file with a slightly different name
-          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
-                      paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL , Suffix ,"_timing.txt"),
-                      sep = "\t",
-                      row.names = FALSE,
-                      col.names = FALSE)
+            # Save the target row of our dataframe as a text file with a slightly different name
+            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
+                        paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL , Suffix ,"_timing.txt"),
+                        sep = "\t",
+                        row.names = FALSE,
+                        col.names = FALSE)
           }
           if (Trials == 1){
-          
-          # Save the target row of our dataframe as a text file with a slightly different name
-          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
-                      paste0("sub-", PID, "_task-uncertainty_run-2_timing", Suffix ,".txt"),
-                      sep = "\t",
-                      row.names = FALSE,
-                      col.names = FALSE)
+            # Save the target row of our dataframe as a text file with a slightly different name
+            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
+                        paste0("sub-", PID, "_task-uncertainty_run-2_timing", Suffix ,".txt"),
+                        sep = "\t",
+                        row.names = FALSE,
+                        col.names = FALSE)
           }
         }
       }
