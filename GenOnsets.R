@@ -1,7 +1,8 @@
 GenOnsets <- function(PIDs,
                       Tasks = c("3_task-1", "5_task-2"),
                       TR = 2,
-                      EVs,
+                      Trial_Length = 60,
+                      Trials = 22,
                       RawDir = "/data/Uncertainty/data/raw",
                       BehavDir = "/data/Uncertainty/data/behav",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
@@ -66,7 +67,7 @@ GenOnsets <- function(PIDs,
       if (nFiles == 759){
         
         # Create an onset sequence that removes the first 90 and last 90 seconds 
-        onset <- seq(107, (nFiles * TR) - 90 - TR, TR)
+        onset <- seq(107, (nFiles * TR) - 90 - Trial_Length, Trials)
         
       }
       
@@ -74,11 +75,11 @@ GenOnsets <- function(PIDs,
       if (nFiles == 729){
         
         # Create an onset sequence that removes the first 60 and last 60 seconds
-        onset <- seq(77, (nFiles * TR) - 60 - TR, TR)
+        onset <- seq(77, (nFiles * TR) - 60 - Trial_Length, Trials)
       }
       
       # Create a duration sequence equal to the TR across the board
-      duration <- rep(TR, length(onset))
+      duration <- rep(Trial_Length, length(onset))
       
       # Import the dataframe containing this participants behavioral correlate
       behav_file <- list.files(path = BehavDir,
@@ -97,7 +98,7 @@ GenOnsets <- function(PIDs,
             # Set parametric modulation to the mean-centered behavioral correlate
             paramod <- rucleaner(file = behav_file,
                                  dir = BehavDir,
-                                 unit_secs = TR,
+                                 unit_secs = Trial_Length,
                                  shave_secs = 17) %>%
                         subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
                         abs() %>% 
@@ -147,7 +148,7 @@ GenOnsets <- function(PIDs,
       setwd(paste0(DerivDir, "/sub-", PID, "/","onset"))
       
       #Tracking which rows denote the start of a new trial 
-      rows <- seq(1, nrow(df_temp), nrow(df_temp) / EVs)
+      rows <- seq(1, nrow(df_temp), nrow(df_temp) / Trials)
       
       # Iterate through each row that starts a new trial in the new dataframe
       for (TRIAL in 1:length(rows)){   
@@ -155,19 +156,19 @@ GenOnsets <- function(PIDs,
         # If we're working with the first half video ...
         if (Task == "3_task-1"){
           
-          if (EVs != 1){
+          if (Trials != 1){
           
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
-            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
+            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
                         paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
             }
-           if (EVs == 1){
           
+          if (Trials == 1){
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
-            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
+            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
                         paste0("sub-", PID, "_task-uncertainty_run-1_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
@@ -178,19 +179,19 @@ GenOnsets <- function(PIDs,
         # If we're working with the second half video ...
         if (Task == "5_task-2"){
                     
-          if (EVs != 1){
+          if (Trials != 1){
           
           # Save the target row of our dataframe as a text file with a slightly different name
-          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
+          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
                       paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL ,"_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
                       col.names = FALSE)
           }
-          if (EVs == 1){
+          if (Trials == 1){
           
           # Save the target row of our dataframe as a text file with a slightly different name
-          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / EVs) - 1)),],
+          write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
                       paste0("sub-", PID, "_task-uncertainty_run-2_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
