@@ -96,7 +96,7 @@ GenOnsets <- function(PIDs,
             # Set parametric modulation to the mean-centered behavioral correlate
             paramod <- rucleaner(file = behav_file,
                                  dir = BehavDir,
-                                 unit_secs = 2,
+                                 unit_secs = TR,
                                  shave_secs = 17) %>%
                         subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
                         abs() %>% 
