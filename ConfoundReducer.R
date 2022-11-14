@@ -69,10 +69,6 @@ ConfoundReducer <- function(PIDs,
                           sep = '\t',
                           header = T,
                           na.strings = c("","NA","n/a"))
-          df <- read.table(file = "C:/Users/tui81100/Dropbox/sub-0035_task-uncertainty_run-1_desc-confounds_timeseries.tsv",
-                           sep = '\t',
-                           header = T,
-                           na.strings = c("","NA","n/a"))
                    
           # Subset the desired columns
           df <- subset(df, select = confounds)
