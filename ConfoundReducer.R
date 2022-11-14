@@ -76,15 +76,15 @@ ConfoundReducer <- function(PIDs,
           
           # Check if censoring should occur
           if (motion_censor == TRUE){
-              
+            
+            # Keeping track of how many motion outliers we have
+            tracker <- 0  
+            
             # Iterate through each observation in the dataframe
             for (OBS in 1:nrow(df)){
               
-              # Keeping track of how many motion outliers we have
-              tracker <- 0
-              
                # If that observation has a FWD value greater than the threshold ...
-              if (df$framewise_displacement[OBS] > motion_censor_thresh){
+              if (as.numeric(df$framewise_displacement[OBS]) > as.numeric(motion_censor_thresh)){
                 
                 # Create a new column of zeroes
                 df[,ncol(df) + 1] <- 0
