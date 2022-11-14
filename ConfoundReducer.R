@@ -8,8 +8,11 @@ ConfoundReducer <- function(PIDs,
                              runs = 2,
                              task = "uncertainty",
                              confounds = c("a_comp_cor_00","a_comp_cor_01","a_comp_cor_02","a_comp_cor_03",
-                                            "a_comp_cor_04","a_comp_cor_05", names(df)[grep(x= names(df), pattern = "^cosine*")],
-                                            "trans_x","trans_y", "trans_z","rot_x","rot_y","rot_z", "framewise_displacement", "dvars", "tcompcor")
+                                           "a_comp_cor_04","a_comp_cor_05", names(df)[grep(x= names(df), pattern = "^cosine*")],
+                                           "trans_x","trans_y", "trans_z", "rot_x","rot_y","rot_z", 
+                                           "framewise_displacement", "dvars", "tcompcor"),
+                             motion_censor = TRUE,
+                             motion_censor_thresh = 0.9
                            ){
 
   # Check whether this file path is valid.
@@ -26,6 +29,8 @@ ConfoundReducer <- function(PIDs,
   if (is.na(task) | is.null(task)){
     stop(print(paste("Error: task should be the name heudiconv or your preferred BIDS organizing program assigns to your task. It cannot be left undefined. Please enter something and try again.")))
   }
+
+  # I need to return and add QA checks for censor and confound arguments
 
   # Dependencies
   library(assertthat)
@@ -66,6 +71,44 @@ ConfoundReducer <- function(PIDs,
                    
           # Subset the desired columns
           df <- subset(df, select = confounds)
+          
+          # Check if censoring should occur
+          if (motion_censor == TRUE){
+              
+            # Iterate through each observation in the dataframe
+            for (OBS in 1:nrow(df)){
+              
+              # Keeping track of how many motion outliers we have
+              tracker <- 0
+              
+               # If that observation has a FWD value greater than the threshold ...
+              if (df$framewise_displacement > motion_censor_thresh){
+                
+                # Create a new column of zeroes
+                df[,ncol(df) + 1] <- 0
+                
+                # Add a one for this specific observation in that column
+                df[OBS, ncol(df)] <- 1
+                
+                # If we have fewer than 10 outliers so far
+                if (tracker < 10){
+                  
+                  # Change the name of that column
+                  names(df[ncol]) <- paste0("motion_outlier0", tracker) 
+                }
+                
+                # If we have 10 or more outliers so far
+                if (tracker > 09){
+                  
+                  # Change the name of that column
+                  names(df[ncol]) <- paste0("motion_outlier", tracker) 
+                }
+                
+                # Adding to the tracker
+                tracker <- tracker + 1
+              }
+            }
+          }
           
           # And then save that dataframe as a new text file within that "look_onsets" folder
           write.table(df, 
