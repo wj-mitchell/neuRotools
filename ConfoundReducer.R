@@ -84,7 +84,7 @@ ConfoundReducer <- function(PIDs,
               tracker <- 0
               
                # If that observation has a FWD value greater than the threshold ...
-              if (df$framewise_displacement > motion_censor_thresh){
+              if (df$framewise_displacement[OBS] > motion_censor_thresh){
                 
                 # Create a new column of zeroes
                 df[,ncol(df) + 1] <- 0
