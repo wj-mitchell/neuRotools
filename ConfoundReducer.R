@@ -14,8 +14,7 @@ ConfoundReducer <- function(PIDs,
                                            names(df)[grep(x= names(df), pattern = "^rot*")], 
                                            "framewise_displacement", "dvars", "tcompcor"),
                              motion_censor = TRUE,
-                             motion_censor_thresh = 0.9
-                           ){
+                             motion_censor_thresh = 0.9){
 
   # Check whether this file path is valid.
   if (!dir.exists(dir)){
@@ -70,6 +69,10 @@ ConfoundReducer <- function(PIDs,
                           sep = '\t',
                           header = T,
                           na.strings = c("","NA","n/a"))
+          df <- read.table(file = "C:/Users/tui81100/Dropbox/sub-0035_task-uncertainty_run-1_desc-confounds_timeseries.tsv",
+                           sep = '\t',
+                           header = T,
+                           na.strings = c("","NA","n/a"))
                    
           # Subset the desired columns
           df <- subset(df, select = confounds)
@@ -81,33 +84,37 @@ ConfoundReducer <- function(PIDs,
             tracker <- 0  
             
             # Iterate through each observation in the dataframe
-            for (OBS in 1:nrow(df)){
+            for (OBS in 2:nrow(df)){
               
-               # If that observation has a FWD value greater than the threshold ...
-              if (as.numeric(df$framewise_displacement[OBS]) > as.numeric(motion_censor_thresh)){
+              # If that observation isn't an NA
+              if (!is.na(df$framewise_displacement[OBS])){
                 
-                # Create a new column of zeroes
-                df[,ncol(df) + 1] <- 0
-                
-                # Add a one for this specific observation in that column
-                df[OBS, ncol(df)] <- 1
-                
-                # If we have fewer than 10 outliers so far
-                if (tracker < 10){
+                # If that observation has a FWD value greater than the threshold ...
+                if (df$framewise_displacement[OBS] > motion_censor_thresh){
                   
-                  # Change the name of that column
-                  names(df[ncol]) <- paste0("motion_outlier0", tracker) 
-                }
-                
-                # If we have 10 or more outliers so far
-                if (tracker > 09){
+                  # Create a new column of zeroes
+                  df[,ncol(df) + 1] <- 0
                   
-                  # Change the name of that column
-                  names(df[ncol]) <- paste0("motion_outlier", tracker) 
+                  # Add a one for this specific observation in that column
+                  df[OBS, ncol(df)] <- 1
+                  
+                  # If we have fewer than 10 outliers so far
+                  if (tracker < 10){
+                    
+                    # Change the name of that column
+                    names(df[ncol]) <- paste0("motion_outlier0", tracker) 
+                  }
+                  
+                  # If we have 10 or more outliers so far
+                  if (tracker > 09){
+                    
+                    # Change the name of that column
+                    names(df[ncol]) <- paste0("motion_outlier", tracker) 
+                  }
+                  
+                  # Adding to the tracker
+                  tracker <- tracker + 1  
                 }
-                
-                # Adding to the tracker
-                tracker <- tracker + 1
               }
             }
           }
