@@ -11,7 +11,7 @@ ConfoundReducer <- function(PIDs,
                                            "a_comp_cor_03","a_comp_cor_04","a_comp_cor_05", 
                                            names(df)[grep(x= names(df), pattern = "^cosine*")],
                                            names(df)[grep(x= names(df), pattern = "^trans*")], 
-                                           names(df)[grep(x= names(df), pattern = "^rot*")] 
+                                           names(df)[grep(x= names(df), pattern = "^rot*")], 
                                            "framewise_displacement", "dvars", "tcompcor"),
                              motion_censor = TRUE,
                              motion_censor_thresh = 0.9
