@@ -99,6 +99,7 @@ GenOnsets <- function(PIDs,
                                  shave_secs = 17) %>%
                         subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
                         abs() %>% 
+                        unlist %>%
                         as.numeric()
             
             if (ParaMod_Scale == TRUE){
