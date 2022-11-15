@@ -7,6 +7,7 @@ GenOnsets <- function(PIDs,
                       BehavDir = "/data/Uncertainty/data/behav/",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                       ParaMod = T,
+                      ParaMod_Scale = T,
                       Baseline = F,
                       Suffix = "",
                       SeparateFiles = F){
@@ -98,8 +99,11 @@ GenOnsets <- function(PIDs,
                                  shave_secs = 17) %>%
                         subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
                         abs() %>% 
-                        scale(scale = T, center = T) %>%
                         as.numeric()
+            
+            if (ParaMod_Scale == TRUE){
+              paramod <- scale(paramod, scale = T, center = T)
+            }
           }
           
           # But if this is another run ....
