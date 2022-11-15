@@ -4,13 +4,13 @@ GenOnsets <- function(PIDs,
                       Trial_Length = 20,
                       Trials = 66,
                       RawDir = "/data/Uncertainty/data/raw",
-                      BehavDir = "/data/Uncertainty/data/behav/",
+                      BehavDir = "S:/Helion_Group/studies/uncertainty/studies_neuro/data/task/",
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                       ParaMod = T,
-                      ParaMod_Scale = T,
+                      ParaMod_Scale = F,
                       Subset = 0,
                       Baseline = F,
-                      Suffix = "",
+                      Suffix = "_Rate",
                       SeparateFiles = F){
  
   # QA Checks
@@ -135,17 +135,17 @@ GenOnsets <- function(PIDs,
       # Concatenate onset, duration and parametric modulation into a dataframe
       df_temp <- data.frame(onset, duration, paramod)
       
-      if (!is.na(df_temp$CertRate[1]) & nrow(df_temp) > 1){
+      if (!is.na(df_temp$paramod[1]) & nrow(df_temp) > 1){
         df_temp$Condition <- NA
-        if (df_temp$CertRate[1] == 0){
+        if (df_temp$paramod[1] == 0){
           df_temp$Condition[1] <- 0
         }
         
         for (row in 2:nrow(df_temp)){
-          if (df_temp$CertRate[row] == df_temp$CertRate[row - 1]){
+          if (df_temp$paramod[row] == df_temp$paramod[row - 1]){
             df_temp$Condition[row] <- 0
           }
-          if (df_temp$CertRate[row] != df_temp$CertRate[row - 1]){
+          if (df_temp$paramod[row] != df_temp$paramod[row - 1]){
             df_temp$Condition[row] <- 1
           }
         }
