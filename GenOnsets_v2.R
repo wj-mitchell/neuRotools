@@ -135,24 +135,25 @@ GenOnsets <- function(PIDs,
       # Concatenate onset, duration and parametric modulation into a dataframe
       df_temp <- data.frame(onset, duration, paramod)
       
-      
-      df_temp$Condition <- NA
-      if (df_temp$CertRate[1] == 0){
-        df_temp$Condition[1] <- 0
-      }
-      
-      for (row in 2:nrow(df_temp)){
-        if (df_temp$CertRate[row] == df_temp$CertRate[row - 1]){
-          df_temp$Condition[row] <- 0
+      if (!is.na(df_temp$CertRate[1]) & nrow(df_temp) > 1){
+        df_temp$Condition <- NA
+        if (df_temp$CertRate[1] == 0){
+          df_temp$Condition[1] <- 0
         }
-        if (df_temp$CertRate[row] != df_temp$CertRate[row - 1]){
-          df_temp$Condition[row] <- 1
+        
+        for (row in 2:nrow(df_temp)){
+          if (df_temp$CertRate[row] == df_temp$CertRate[row - 1]){
+            df_temp$Condition[row] <- 0
+          }
+          if (df_temp$CertRate[row] != df_temp$CertRate[row - 1]){
+            df_temp$Condition[row] <- 1
+          }
         }
+        
+        df_temp$paramod <- 1
+        
+        df_temp <- subset(df_temp, df_temp$Condition == Subset, select = c("onset", "duration", "paramod"))
       }
-      
-      df_temp$paramod <- 1
-      
-      df_temp <- subset(df_temp, df_temp$Condition == Subset, select = c("onset", "duration", "paramod"))
       
       # If an onset directory doesn't already exist
       if (!dir.exists(paste0(DerivDir, "/sub-", PID, "/","onset"))){
