@@ -3,7 +3,7 @@ ConditionSorter <- function(PIDs = PIDs,
                             BehavDir = "/data/Uncertainty/data/behav/",
                             DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                             Tasks = c("3_task-1", "5_task-2"),
-                            Trial_Length)
+                            Suffix = paste0("_ParaMod-T_ParaModDiff-F_TrialLength-",TIME))
 {
 
 # Creating a For Loop that will Generate Our Three Column Files
@@ -26,12 +26,12 @@ for (PID in PIDs){
 
         # Read in their data
         if (Task == "5_task-2"){
-          df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/" ,"sub-", PID, "_task-uncertainty_run-2_ParaMod-T_ParaModDiff-F_TrialLength-",Trial_Length,"_timing.txt"))
+          df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/" ,"sub-", PID, "_task-uncertainty_run-2", Suffix,"_timing.txt"))
           
         }
 
         if (Task == "3_task-1"){
-          df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-uncertainty_run-1_ParaMod-T_ParaModDiff-F_TrialLength-",Trial_Length,"_timing.txt"))
+          df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-uncertainty_run-1", Suffix,"_timing.txt"))
         }
         
         # Create a new empty column named Condition
@@ -88,14 +88,14 @@ for (PID in PIDs){
                     subset(select = c("V1", "V2", "paramod"))
           if (Task == "5_task-2"){
           write.table(df_temp,
-                       paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-uncertainty_run-2_ParaMod-T_ParaModDiff-F_TrialLength-",Trial_Length,"_Condition-",Cond,"_timing.txt"),
+                       paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-uncertainty_run-2", Suffix,"_Condition-",Cond,"_timing.txt"),
                        sep = "\t",
                        row.names = FALSE,
                        col.names = FALSE)
           }
           if (Task == "3_task-1"){  
             write.table(df_temp,
-                        paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-uncertainty_run-1_ParaMod-T_ParaModDiff-F_TrialLength-",Trial_Length,"_Condition-",Cond,"_timing.txt"),
+                        paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-uncertainty_run-1", Suffix,"_Condition-",Cond,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
