@@ -1,16 +1,20 @@
-GenOnsets <- function(PIDs,
-                      Tasks = c("3_task-1", "5_task-2"),
-                      TR = 2,
-                      Trial_Length = 60,
-                      Trials = 22,
-                      RawDir = "/data/Uncertainty/data/raw",
-                      BehavDir = "/data/Uncertainty/data/behav/",
-                      DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
-                      ParaMod = T,
-                      ParaMod_Scale = T,
-                      Baseline = F,
-                      Suffix = "",
-                      SeparateFiles = F){
+GenOnsets <- function(PIDs,  # An array of participant IDs to Process
+                      Tasks = c("3_task-1", "5_task-2"), # An array of the task names that appear on the DICOM files
+                      TR = 2, # The length of your repetition time in seconds
+                      Trial_Length = 60, # The length of each of your trials in seconds
+                      Trials = 22, # The number of trials you have 
+                      Shave_Length = 17 , # How much time should be shaved from the beginning of your data
+                      RawDir = "/data/Uncertainty/data/raw", # The directory in which your DICOM files are stored
+                      BehavDir = "/data/Uncertainty/data/behav/", # The directory in which your MRI behavioral data is stored
+                      DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep", # The directory in which your preprocessed data is stored
+                      ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
+                      ParaMod_Scale = T, # Whether that parametric modulation should be z-scored
+                      ParaMod_Diff = F, # Whether that parametric modulation should specifically identify changes in behavior by subtracting the previous trials value from the current trial
+                      Checkerboard = F, # Whether to output onset files for the spinning checkerboard 30s before and after video
+                      Shaved = T, # Whether to output onset files for the shaved data, equal to the Shave_Length
+                      Suffix = "", # A suffix to add to your onset files to better differentiate them from one another
+                      SeparateFiles = F # An argument as to whether each trial should be saved as a separate onset file
+                     ){
  
   # QA Checks
   # Checking TR
@@ -96,7 +100,7 @@ GenOnsets <- function(PIDs,
             paramod <- rucleaner(file = behav_file,
                                  dir = BehavDir,
                                  unit_secs = Trial_Length,
-                                 shave_secs = 17) %>%
+                                 shave_secs = Shave_Length) %>%
                         subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
                         abs() %>% 
                         unlist %>%
@@ -104,6 +108,12 @@ GenOnsets <- function(PIDs,
             
             if (ParaMod_Scale == TRUE){
               paramod <- scale(paramod, scale = T, center = T)
+            }
+            
+            if (ParaMod_Diff == TRUE){
+              for (ITEM in 2:length(paramod)){
+                paramod[ITEM] <- paramod[ITEM] - paramod[ITEM - 1]
+              }
             }
           }
           
@@ -198,7 +208,7 @@ GenOnsets <- function(PIDs,
         }
       }
       
-      if (Baseline == T){
+      if (Checkerboard == T){
         # Writing an onset file for the spinning checkerboard 
         write.table(data.frame(x=c(seq(30, 
                                        60 - TR,
@@ -209,6 +219,16 @@ GenOnsets <- function(PIDs,
                                y=TR,
                                z=1),
                     paste0("sub-", PID, "_task-uncertainty_CB", Suffix ,"_timing.txt"),
+                    sep = "\t",
+                    row.names = FALSE,
+                    col.names = FALSE)
+      }
+      if (Shaved == T){
+        # Writing an onset file for the shaved data
+        write.table(data.frame(x=60, 
+                               y=Shave_Length,
+                               z=1),
+                    paste0("sub-", PID, "_task-uncertainty_Shaved", Suffix ,"_timing.txt"),
                     sep = "\t",
                     row.names = FALSE,
                     col.names = FALSE)
