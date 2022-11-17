@@ -2,7 +2,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Tasks = c("3_task-1", "5_task-2"), # An array of the task names that appear on the DICOM files
                       TR = 2, # The length of your repetition time in seconds
                       Trial_Length = 60, # The length of each of your trials in seconds
-                      Trials = 22, # The number of trials you have 
+                      Trials = 22, # The number of trials you have
+                      Stim_Length , # [IN DEVELOPMENT] An argument to use in lieu of specifying how many trials we have. It will be divided by the Trial_Length Argument and automatically calcluate the number of trials you have
                       Shave_Length = 17 , # How much time should be shaved from the beginning of your data
                       RawDir = "/data/Uncertainty/data/raw", # The directory in which your DICOM files are stored
                       BehavDir = "/data/Uncertainty/data/behav/", # The directory in which your MRI behavioral data is stored
