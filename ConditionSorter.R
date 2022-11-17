@@ -1,9 +1,9 @@
-ConditionSorter <- function(PIDs = PIDs,
+ConditionSorter <- function(PIDs,
                             RawDir = "/data/Uncertainty/data/raw",
                             BehavDir = "/data/Uncertainty/data/behav/",
                             DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                             Tasks = c("3_task-1", "5_task-2"),
-                            Suffix = paste0("_ParaMod-T_ParaModDiff-F_TrialLength-",TIME))
+                            Suffix)
 {
   
   # Creating a For Loop that will Generate Our Three Column Files
