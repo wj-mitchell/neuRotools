@@ -11,8 +11,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
                       ParaMod_Scale = T, # Whether that parametric modulation should be z-scored
                       ParaMod_Diff = F, # Whether that parametric modulation should specifically identify changes in behavior by subtracting the previous trials value from the current trial
-                      ParaMod_Offset = T, # Whether the parametric modulator should be offset (e.g., lagged) relative to the trials 
-                      ParaMod_OffsetLength = 1, # How many trials the parametric modulator should be offset by. Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial.
+                      ParaMod_Offset = F, # Whether the parametric modulator should be offset (e.g., lagged) relative to the trials 
+                      ParaMod_OffsetLength = NA, # How many trials the parametric modulator should be offset by. Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial.
                       Checkerboard = F, # Whether to output onset files for the spinning checkerboard 30s before and after video
                       Shaved = T, # Whether to output onset files for the shaved data, equal to the Shave_Length
                       Suffix = "", # A suffix to add to your onset files to better differentiate them from one another
