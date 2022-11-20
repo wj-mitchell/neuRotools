@@ -114,7 +114,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
             }
             
             if (ParaMod_Diff == TRUE){
-              for (ITEM in 2:length(paramod)){
+              for (ITEM in length(paramod):2){
                 paramod[ITEM] <- paramod[ITEM] - paramod[ITEM - 1]
               }
             }
