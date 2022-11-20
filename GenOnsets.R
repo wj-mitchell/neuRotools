@@ -121,7 +121,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
             
             if (ParaMod_Offset == TRUE){
               paramod <- paramod[(1 + ParaMod_OffsetLength):(length(paramod)  + ParaMod_OffsetLength)]
-              paramod[is.na(paramod)] <- 1 
+              paramod[is.na(paramod)] <- 0 
             }
           }
           
