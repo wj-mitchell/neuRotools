@@ -13,6 +13,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       ParaMod_Diff = F, # Whether that parametric modulation should specifically identify changes in behavior by subtracting the previous trials value from the current trial
                       ParaMod_Offset = F, # Whether the parametric modulator should be offset (e.g., lagged) relative to the trials 
                       ParaMod_OffsetLength = NA, # How many trials the parametric modulator should be offset by. Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial.
+                      ParaMod_Gammify = F, # [IN DEVELOPMENT] Apply a mirrored gamma distribution to all non-zero values in the parametrically modulated array
+                      ParaMod_GammifyBins = 6, # [IN DEVELOPMENT] Identify how many trials prior to the target trail should be affected by the gamma distribution
                       Checkerboard = F, # Whether to output onset files for the spinning checkerboard 30s before and after video
                       Shaved = T, # Whether to output onset files for the shaved data, equal to the Shave_Length
                       Suffix = "", # A suffix to add to your onset files to better differentiate them from one another
@@ -45,6 +47,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
   # Loading packages
   library(tidyverse)
   source("https://github.com/wj-mitchell/neuRotools/blob/main/rucleaner.R?raw=TRUE", local = T)
+  source("https://github.com/wj-mitchell/neuRotools/blob/main/gammify.R?raw=TRUE", local = T)  
   
   # Creating a For Loop that will Generate Our Three Column Files
   # For each participant listed ...
