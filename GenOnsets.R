@@ -1,8 +1,11 @@
 GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Tasks = c("3_task-1", "5_task-2"), # An array of the task names that appear on the DICOM files
                       TR = 2, # The length of your repetition time in seconds
+                      Events = c("Trials", "Inflections"), # [IN DEVELOPMENT] Whether the category of event should be equally spaced, equally long trials or inflection points
+                      Inflection_Before = 15, # [IN DEVELOPMENT] How long before the inflection the event should include
+                      Inflection_After = 5, # [IN DEVELOPMENT] How long afte the inflection the event should include
                       Trial_Length = 60, # The length of each of your trials in seconds
-                      Trials = 22, # The number of trials you have
+                      Trial_Num = 22, # The number of trials you have
                       Stim_Length , # [IN DEVELOPMENT] An argument to use in lieu of specifying how many trials we have. It will be divided by the Trial_Length Argument and automatically calcluate the number of trials you have
                       Shave_Length = 17 , # How much time should be shaved from the beginning of your data
                       RawDir = "/data/Uncertainty/data/raw", # The directory in which your DICOM files are stored
@@ -21,7 +24,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       SeparateFiles = F # An argument as to whether each trial should be saved as a separate onset file
                      ){
  
-  # QA Checks
+  # QA Checks [IN DEVELOPMENT] 
   # Checking TR
   if (TR <= 0 | !is.numeric(TR) | is.na((TR))){
     stop(paste("TR refers to the time of repetition for your scans. It must be a numeric value greater than zero. You've entered", 
@@ -167,7 +170,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       
       if (SeparateFiles == T){
         #Tracking which rows denote the start of a new trial 
-        rows <- seq(1, nrow(df_temp), nrow(df_temp) / Trials)
+        rows <- seq(1, nrow(df_temp), nrow(df_temp) / Trial_Num)
       }
       
       if (SeparateFiles == F){
@@ -181,7 +184,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
         if (Task == "3_task-1"){
           if (length(rows) != 1){
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
-            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
+            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trial_Num) - 1)),],
                         paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL, Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
@@ -202,7 +205,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
         if (Task == "5_task-2"){
           if (length(rows) != 1){
             # Save the target row of our dataframe as a text file with a slightly different name
-            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trials) - 1)),],
+            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trial_Num
+                                                            ) - 1)),],
                         paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL , Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
