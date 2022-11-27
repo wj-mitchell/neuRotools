@@ -7,7 +7,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Shave_Length = 0, # How much time should be shaved from the beginning of your data
                       Checkerboard = F, # Whether to output onset files for the spinning checkerboard 30s before and after video
                       Suffix = "", # A suffix to add to your onset files to better differentiate them from one another
-                      SeparateFiles = F # An argument as to whether each trial should be saved as a separate onset file
+                      SeparateFiles = F, # An argument as to whether each trial should be saved as a separate onset file
                       ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
                       Method = c("CPA", "Inflections", "Bins"),
                       Demean = T,
@@ -16,8 +16,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Threshold = 1000,
                       OffsetLength = NA, # How many trials the parametric modulator should be offset by. Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial.
                       # GammifyBins = 6, # [IN DEVELOPMENT] Identify how many trials prior to the target trail should be affected by the gamma distribution
-                      BufferBefore = 10, # [IN DEVELOPMENT] How long before the inflection the event should include in seconds
-                      BufferAfter = 10, # [IN DEVELOPMENT] How long after the inflection the event should include in seconds
+                      BufferBefore = 0, # [IN DEVELOPMENT] How long before the inflection the event should include in seconds
+                      BufferAfter = 0, # [IN DEVELOPMENT] How long after the inflection the event should include in seconds
                       # BinLength = 60, # The length of each of your trials in seconds
                       # BinNum = 22, # The number of trials you have
                       # Stim_Length # [IN DEVELOPMENT] An argument to use in lieu of specifying how many trials we have. It will be divided by the Trial_Length Argument and automatically calcluate the number of trials you have
