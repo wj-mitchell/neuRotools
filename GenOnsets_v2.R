@@ -1,30 +1,30 @@
 GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Tasks = c("3_task-1", "5_task-2"), # An array of the task names that appear on the DICOM files
-                      TR = 2, # The length of your repetition time in seconds
-                      Use_CPA = T, # [IN DEVELOPMENT] Use a PELT method change point analysis from the "changepoint" package to identify inflection points 
-                      Inflection = T, # [IN DEVELOPMENT] Whether the category of event should be equally spaced, equally long trials or inflection points
-                      Inflection_Before = 10, # [IN DEVELOPMENT] How long before the inflection the event should include in seconds
-                      Inflection_After = 10, # [IN DEVELOPMENT] How long after the inflection the event should include in seconds
-                      Trial_Length = 60, # The length of each of your trials in seconds
-                      Trial_Num = 22, # The number of trials you have
-                      Stim_Length , # [IN DEVELOPMENT] An argument to use in lieu of specifying how many trials we have. It will be divided by the Trial_Length Argument and automatically calcluate the number of trials you have
-                      Shave_Length = 17 , # How much time should be shaved from the beginning of your data
                       RawDir = "/data/Uncertainty/data/raw", # The directory in which your DICOM files are stored
                       BehavDir = "/data/Uncertainty/data/behav/", # The directory in which your MRI behavioral data is stored
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep", # The directory in which your preprocessed data is stored
-                      ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
-                      Scale = T, # Whether that parametric modulation should be z-scored
-                      Detrend = F, # Whether that parametric modulation should specifically identify changes in behavior by subtracting the previous trials value from the current trial
-                      ParaMod_Offset = F, # Whether the parametric modulator should be offset (e.g., lagged) relative to the trials 
-                      ParaMod_OffsetLength = NA, # How many trials the parametric modulator should be offset by. Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial.
-                      ParaMod_Gammify = F, # [IN DEVELOPMENT] Apply a mirrored gamma distribution to all non-zero values in the parametrically modulated array
-                      ParaMod_GammifyBins = 6, # [IN DEVELOPMENT] Identify how many trials prior to the target trail should be affected by the gamma distribution
+                      TR = 2, # The length of your repetition time in seconds
+                      Shave_Length = 0, # How much time should be shaved from the beginning of your data
                       Checkerboard = F, # Whether to output onset files for the spinning checkerboard 30s before and after video
-                      Shaved = T, # Whether to output onset files for the shaved data, equal to the Shave_Length
                       Suffix = "", # A suffix to add to your onset files to better differentiate them from one another
                       SeparateFiles = F # An argument as to whether each trial should be saved as a separate onset file
-                     ){
- 
+                      ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
+                      Method = c("CPA", "Inflections", "Bins"),
+                      Demean = T,
+                      Detrend = F, # Whether that parametric modulation should specifically identify changes in behavior by subtracting the previous trials value from the current trial
+                      ZScore = T,
+                      Threshold = 1000,
+                      OffsetLength = NA, # How many trials the parametric modulator should be offset by. Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial.
+                      # GammifyBins = 6, # [IN DEVELOPMENT] Identify how many trials prior to the target trail should be affected by the gamma distribution
+                      BufferBefore = 10, # [IN DEVELOPMENT] How long before the inflection the event should include in seconds
+                      BufferAfter = 10, # [IN DEVELOPMENT] How long after the inflection the event should include in seconds
+                      # BinLength = 60, # The length of each of your trials in seconds
+                      # BinNum = 22, # The number of trials you have
+                      # Stim_Length # [IN DEVELOPMENT] An argument to use in lieu of specifying how many trials we have. It will be divided by the Trial_Length Argument and automatically calcluate the number of trials you have
+                      
+                      
+){
+  
   # QA Checks [IN DEVELOPMENT] 
   # Checking TR
   if (TR <= 0 | !is.numeric(TR) | is.na((TR))){
@@ -59,7 +59,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
   
   # Loading custom functions
   source("https://github.com/wj-mitchell/neuRotools/blob/main/rucleaner.R?raw=TRUE", local = T)
-  source("https://github.com/wj-mitchell/neuRotools/blob/main/gammify.R?raw=TRUE", local = T)  
+  # source("https://github.com/wj-mitchell/neuRotools/blob/main/gammify.R?raw=TRUE", local = T)  
   
   # Creating a For Loop that will Generate Our Three Column Files
   # For each participant listed ...
@@ -77,97 +77,111 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
     # ... and for each task they completed
     for (Task in Tasks){
       
+      # if we want to create a parametric modulator
+      if (ParaMod == T){
       
-      # MUST BE ALTERED FOR CPA APPROACH
-      {
-      # Calculate how many files they have in their raw directory
-      # If we find any files at this path, proceed ...
-      if (length(list.files(paste0(RawDir, "/sub-", PID, "/",  Task, "/DICOM/"))) != 0){
-        nFiles <- length(list.files(paste0(RawDir, "/sub-", PID, "/",  Task, "/DICOM/")))
-      }
+        # Import the dataframe containing this participants behavioral correlate
+        behav_file <- list.files(path = BehavDir,
+                                 full.names = F,
+                                 pattern = paste0("^certainty_neuro_SR-", PID, ".*\\.csv$"))
+        
+        # if we don't have the behavioral data
+        if (is_empty(behav_file)){
+          
+          # Move on to the next iteration
+          next
+        }
       
-      # ... but if that directory doesn't work, try this other one.
-      if (length(list.files(paste0(RawDir, "/sub-", PID, "/",  Task, "/DICOM/"))) == 0){
-        nFiles <- length(list.files(paste0(RawDir, "/sub-", PID, "/scans/",  Task, "/DICOM/")))
-      }
-      
-      # If the participant's uncertainty task has 759 files 
-      if (nFiles == 759){
-        # Create an onset sequence that removes the first 90 and last 90 seconds 
-        onset <- seq(107, (nFiles * TR) - 90 - Trial_Length, Trial_Length)
-      }
-      
-      # If the participant's uncertainty task has 729 files
-      if (nFiles == 729){
-        # Create an onset sequence that removes the first 60 and last 60 seconds
-        onset <- seq(77, (nFiles * TR) - 60 - Trial_Length, Trial_Length)
-      }
-      
-      # Create a duration sequence equal to the TR across the board
-      duration <- rep(Trial_Length, length(onset))
-      
-      }
-      
-      # Import the dataframe containing this participants behavioral correlate
-      behav_file <- list.files(path = BehavDir,
-                               full.names = F,
-                               pattern = paste0("^certainty_neuro_SR-", PID, ".*\\.csv$"))
-      
-      # If the behavioral correlate file exists
-      if (!is_empty(behav_file)){
-        # and if we want to use it as a parametric modulator
-        if (ParaMod == T){
+        # If the behavioral correlate file exists
+        if (!is_empty(behav_file)){
+          
           # and if this is the run that participants actually gave ratings for
           if ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1"))){
-            # Set parametric modulation to the mean-centered behavioral correlate
+
+            # Turn the time course in that behavioral file into parametrid modulator
             paramod <- rucleaner(file = behav_file,
                                  dir = BehavDir,
                                  unit_secs = Trial_Length,
                                  shave_secs = Shave_Length) %>%
-                        subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
-                        abs() %>% 
-                        unlist %>%
-                        as.numeric()
+              
+              # Remove observations for the control video
+              subset(!str_detect(.$Video, "Control"), select = (CertRate)) %>%
+              
+              # Get the absolute value of certainty 
+              abs() %>% 
+              
+              # And reformat the values to an array of numeric values
+              unlist %>%
+              as.numeric()
             
-            paramod# Z-score rating, but don't identify inflections
-            if (Scale == TRUE & Detrend == FALSE){
-              paramod <- scale(paramod, scale = T, center = T)
+              # We may later transform this array and non-zero values will be hard to distinguish from zero values. 
+              # Therefore, we are identifying a zero value now for reference
+              zero_point <- which(paramod == 0)[1]
+          }
+          
+          # If we want to detrend the data ...
+          if (Detrend == TRUE){
+            
+            # Use the difference function to basically subtract from any given datapoint the value that preceded it
+            paramod <- c(0, diff(paramod))
+          }
+          
+          # If we want to use change point analysis ...
+          if (Method == "CPA"){
+            
+            # We'll identify inflections using the cpts command
+            # NOTE: We MUST use CPA before scaling
+            inflections <- cpts(cpt.mean(paramod, method = "PELT"))
+          }
+          
+          # But if we want to use all inflections 
+          if (Method == "Inflections"){
+            
+            # We'll identify any array value that's non-zero
+            inflections <- which(paramod != paramod[zero_point])
+          }
+          
+          # Scaling our array through demeaning, standardizing, or both (or neither!)
+          paramod <- as.numeric(scale(paramod, scale = ZScore, center = Demean))
+          
+          # Any datapoints less than threshold will be converted to a value equal to zero
+          # First I'm removing those timepoints from the inflections variable, if they exist there
+          for (CENSORED in which(paramod < Threshold)){
+            if (any(inflections == CENSORED)){
+              inflections <- inflections[-which(inflections == CENSORED)]
             }
+          }
+          
+          # Now we'll actually censor those timepoints
+          paramod[paramod < Threshold] <- paramod[zero_point]
+          
+          
             
-            # First convert the ratings to only include inflections and then z-score those rating inflections
-            if (Scale == TRUE & Detrend == TRUE){
-              paramod <- c(0, diff(paramod))
-              
-              # Since we're about to calculate a z-score, 0 might not be 0 anymore, so we'll note the index of a 0 observation ...
-              zeropoint <- which(paramod == 0)[1]
-              # Scale the array ...
-              paramod <- scale(paramod, scale = T, center = T)
-              # And create a new object to record the z-score of zero based upon that index
-              zerovalue <- paramod[zeropoint]
-              
-              # Use inflections as events. Take the value of any given inflection and add it to all timepoints around that time point
-              if (Inflection == TRUE){
-                for (ITEM in 1:length(paramod)){
-                  if (paramod[ITEM] != zerovalue){
-                    for (TRIAL in (ITEM - (Inflection_Before/TR)):(ITEM + (Inflection_After/TR))){
-                      if (TRIAL != ITEM & TRIAL > 0 & TRIAL <= length(paramod)){
-                        paramod[TRIAL] <- paramod[ITEM] + paramod[TRIAL]
-                      }
+            # Use inflections as events. Take the value of any given inflection and add it to all timepoints around that time point
+            if (Inflection == TRUE){
+              for (ITEM in 1:length(paramod)){
+                if (paramod[ITEM] != zerovalue){
+                  for (TRIAL in (ITEM - (Inflection_Before/TR)):(ITEM + (Inflection_After/TR))){
+                    if (TRIAL != ITEM & TRIAL > 0 & TRIAL <= length(paramod)){
+                      paramod[TRIAL] <- paramod[ITEM] + paramod[TRIAL]
                     }
                   }
                 }
               }
             }
-            
-            rm(zerovalue, zeropoint)
-            
-            
-            # Offset ratings by a certain number of trials 
-            if (ParaMod_Offset == TRUE){
-              paramod <- paramod[(1 + ParaMod_OffsetLength):(length(paramod)  + ParaMod_OffsetLength)]
-              paramod[is.na(paramod)] <- 0 
-            }
           }
+          
+          rm(zerovalue, zeropoint)
+          
+          # Offset
+          
+          
+          # Offset ratings by a certain number of trials 
+          if (ParaMod_Offset == TRUE){
+            paramod <- paramod[(1 + ParaMod_OffsetLength):(length(paramod)  + ParaMod_OffsetLength)]
+            paramod[is.na(paramod)] <- 0 
+          }
+        }
           
           # But if this is another run ....
           if ((str_detect(behav_file, "condB") & str_detect(Task, "task-1")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-2"))){
@@ -175,18 +189,58 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
             paramod <- rep(1, length(onset))
           }
         }
-        
+      
         # Also, if we don't want to use the behavioral correalte as the parametric modulator
         if (ParaMod == F){
           # just set it to '1'
-           paramod <- rep(1, length(onset))
-         }
+          paramod <- rep(1, length(onset))
+        }
       }
       
-      # And if we don't have the behavioral data
-      if (is_empty(behav_file)){
-        # Move on to the next iteration
-        next
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (Method == "CPA" | Method == "Inflections"){
+        
+      }
+      
+      # MUST BE ALTERED FOR CPA APPROACH
+      {
+        # Calculate how many files they have in their raw directory
+        # If we find any files at this path, proceed ...
+        if (length(list.files(paste0(RawDir, "/sub-", PID, "/",  Task, "/DICOM/"))) != 0){
+          nFiles <- length(list.files(paste0(RawDir, "/sub-", PID, "/",  Task, "/DICOM/")))
+        }
+        
+        # ... but if that directory doesn't work, try this other one.
+        if (length(list.files(paste0(RawDir, "/sub-", PID, "/",  Task, "/DICOM/"))) == 0){
+          nFiles <- length(list.files(paste0(RawDir, "/sub-", PID, "/scans/",  Task, "/DICOM/")))
+        }
+        
+        # If the participant's uncertainty task has 759 files 
+        if (nFiles == 759){
+          # Create an onset sequence that removes the first 90 and last 90 seconds 
+          onset <- seq(107, (nFiles * TR) - 90 - Trial_Length, Trial_Length)
+        }
+        
+        # If the participant's uncertainty task has 729 files
+        if (nFiles == 729){
+          # Create an onset sequence that removes the first 60 and last 60 seconds
+          onset <- seq(77, (nFiles * TR) - 60 - Trial_Length, Trial_Length)
+        }
+        
+        # Create a duration sequence equal to the TR across the board
+        duration <- rep(Trial_Length, length(onset))
+        
       }
       
       # Or just set it to '1'
@@ -227,7 +281,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
-            }
+          }
           
           if (length(rows) == 1){
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
@@ -236,7 +290,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
-           }
+          }
         }
         
         # If we're working with the second half video ...
@@ -244,11 +298,11 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
           if (length(rows) != 1){
             # Save the target row of our dataframe as a text file with a slightly different name
             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trial_Num
-                                                            ) - 1)),],
-                        paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL , Suffix ,"_timing.txt"),
-                        sep = "\t",
-                        row.names = FALSE,
-                        col.names = FALSE)
+            ) - 1)),],
+            paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL , Suffix ,"_timing.txt"),
+            sep = "\t",
+            row.names = FALSE,
+            col.names = FALSE)
           }
           if (length(rows) == 1){
             # Save the target row of our dataframe as a text file with a slightly different name
@@ -276,7 +330,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                     row.names = FALSE,
                     col.names = FALSE)
       }
-      if (Shaved == T){
+      
+      if (Shave_Length > 0){
         # Writing an onset file for the shaved data
         write.table(data.frame(x=60, 
                                y=Shave_Length,
