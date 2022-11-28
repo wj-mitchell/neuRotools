@@ -13,7 +13,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
 #                       SeparateFiles = F, # An argument as to whether each trial should be saved as a separate onset file
                       ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
                       Method = c("CPA", "Inflections", "Bins"), # Whether you'd like events in your parametric modulator to be defined by evenly-spaced bins (e.g., a 1200s video could be 20 trials each of 60s length), by any changes in ratings, or by using a PELT method change point analysis
-                      BinLength = 0, # If using the Bin Method, the size of each bin in seconds
+                      BinLength = 30, # If using the Bin Method, the size of each bin in seconds
                       Demean = T, # Whether your parametric modulator should be demeaned (i.e., calculate the average and subtract it from each data point in the time course such that data on either side of the mean are balanced)
                       Detrend = T, # Whether your parametric modulator should be detrended (i.e., subtract the value of the subsequent time point from each time point so that only changes deviate from 0)
                       ZScore = T, # Whether your parametric modulator should be standardized (i.e., converted to standard deviation units to make it more comparable across individuals and studies)
@@ -366,7 +366,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       }
       
       # If we want even length bins of observations
-      if (Method == "Bins"){
+      if (Method == "Bins" | ((str_detect(behav_file, "condB") & str_detect(Task, "task-1")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-2")))){
         
         # Create a sequence of onsets from the original onset variable spaced apart according to how large our bins are
         onset_bin <- seq(onset[1], onset[length(onset)], BinLength)
