@@ -407,7 +407,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       
       # If we want to override the values
       if (!is.na(Override) & is.numeric(Override)){
-        df_temp[which(grep(names(df_temp), "^paramod"))] <- Override
+        df_temp[,grep(names(df_temp), "^paramod*")] <- Override
       }
       
       # If an onset directory doesn't already exist
@@ -445,7 +445,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
 #           if (length(rows) == 1){
 #            # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp,
-                        paste0("sub-", PID, "_task-uncertainty_run-1", Suffix ,"_timing.txt"),
+                        paste0("sub-", PID, "_task-uncertainty_run-1_", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
@@ -468,7 +468,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
 #           if (length(rows) == 1){
 #             # Save the target row of our dataframe as a text file with a slightly different name
             write.table(df_temp,
-                        paste0("sub-", PID, "_task-uncertainty_run-2", Suffix ,"_timing.txt"),
+                        paste0("sub-", PID, "_task-uncertainty_run-2_", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
@@ -487,7 +487,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                                        TR)), 
                                y=TR,
                                z=1),
-                    paste0("sub-", PID, "_task-uncertainty_CB", Suffix ,"_timing.txt"),
+                    paste0("sub-", PID, "_task-uncertainty_CB_", Suffix ,"_timing.txt"),
                     sep = "\t",
                     row.names = FALSE,
                     col.names = FALSE)
@@ -499,7 +499,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
         write.table(data.frame(x=60, 
                                y=ShaveLength,
                                z=1),
-                    paste0("sub-", PID, "_task-uncertainty_Shaved", Suffix ,"_timing.txt"),
+                    paste0("sub-", PID, "_task-uncertainty_Shaved_", Suffix ,"_timing.txt"),
                     sep = "\t",
                     row.names = FALSE,
                     col.names = FALSE)
