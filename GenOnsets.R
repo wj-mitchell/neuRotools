@@ -407,7 +407,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       
       # If we want to override the values
       if (!is.na(Override) & is.numeric(Override)){
-        df_temp[,grep(names(df_temp), "^paramod*")] <- Override
+        df_temp[,grep(x = names(df_temp), 
+                      pattern = "paramod")] <- Override
       }
       
       # If an onset directory doesn't already exist
