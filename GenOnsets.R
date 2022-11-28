@@ -21,7 +21,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
                       Threshold = 2.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
                       OffsetLength = 0, # How many TRs the parametric modulator should be offset by (Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial).
-                      ConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
+                      UseConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
                       # GammifyBins = 6, # [IN DEVELOPMENT] Identify how many trials prior to the target trail should be affected by the gamma distribution
 ){
   
@@ -360,7 +360,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
         df_temp <- data.frame(onset_cluster, duration_cluster, paramod_cluster) 
         
         # Cleaning Our Space
-        rm(paramod, paramod_cluster, onset, onset_cluster, duration, duration_onset)
+        rm(paramod, paramod_cluster, onset, onset_cluster, duration, duration_cluster)
         
       }
       
@@ -498,10 +498,10 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       }
       
       # Cleaning Space
-      rm(df_temp, nFiles, onset, paramod, duration)
+      rm(df_temp, nFiles)
       
       # If we want to take the extra step to use ConditionSorter
-      if (ConditionSorter == TRUE){
+      if (UseConditionSorter == TRUE){
         
         # We can't have two arguments of the same name with nested functions, so I'm creating a temporary one
         suffix <- Suffix
