@@ -59,7 +59,6 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
   
   # Loading custom functions
   source("https://github.com/wj-mitchell/neuRotools/blob/main/rucleaner.R?raw=TRUE", local = T)
-  source("https://github.com/wj-mitchell/neuRotools/blob/main/ConditionSorter.R?raw=TRUE", local = T)
   # source("https://github.com/wj-mitchell/neuRotools/blob/main/gammify.R?raw=TRUE", local = T)  
   
   # Creating a For Loop that will Generate Our Three Column Files
@@ -503,13 +502,16 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       # If we want to take the extra step to use ConditionSorter
       if (UseConditionSorter == TRUE){
         
+        # Source the function
+        source("https://github.com/wj-mitchell/neuRotools/blob/main/ConditionSorter.R?raw=TRUE", local = T)
+        
         # We can't have two arguments of the same name with nested functions, so I'm creating a temporary one
         suffix <- Suffix
         
         # Use Condition Sorter
-        ConditionSorter <- ConditionSorter(PIDs = PID,
-                                           ZeroValue = zero_value,
-                                           Suffix = suffix)
+        ConditionSorter(PIDs = PID,
+                        ZeroValue = zero_value,
+                        Suffix = suffix)
       }
     }
   }
