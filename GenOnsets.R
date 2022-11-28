@@ -2,14 +2,14 @@
 
 GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Tasks = c("3_task-1", "5_task-2"), # An array of the different task name(s) that appear on the DICOM files
-                      RawDir = "/data/Uncertainty/data/raw", # The directory in which your DICOM files are stored
+                      RawDir = "/data/Uncertainty/data/raw/", # The directory in which your DICOM files are stored
                       BehavDir = "/data/Uncertainty/data/behav/", # The directory in which your MRI behavioral data is stored
-                      DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep", # The directory in which your preprocessed data is stored
+                      DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep/", # The directory in which your preprocessed data is stored
                       TR = 2, # The length of your repetition time in seconds
                       ShaveLength = 17, # How much time should be shaved from the beginning of your data in seconds
                       Checkerboard = F, # Whether to output onset files for the spinning checkerboard 30s before and after video
                       Suffix = "", # A suffix to add to your onset files to better differentiate them from one another
-                      SeparateFiles = F, # An argument as to whether each trial should be saved as a separate onset file
+#                       SeparateFiles = F, # An argument as to whether each trial should be saved as a separate onset file
                       ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
                       Method = c("CPA", "Inflections", "Bins"), # Whether you'd like events in your parametric modulator to be defined by evenly-spaced bins (e.g., a 1200s video could be 20 trials each of 60s length), by any changes in ratings, or by using a PELT method change point analysis
                       BinLength = 0, # If using the Bin Method, the size of each bin in seconds
@@ -67,11 +67,11 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
   for (PID in PIDs){
     
     # Checking whether filepaths exist for participant
-    if (!dir.exists(paste0(RawDir, "/sub-", PID))){
+    if (!dir.exists(paste0(RawDir, "sub-", PID))){
       stop(paste("No DICOM directory could be found for participant", PID, ". Perhaps their data has not been downloaded yet. Please check your filepaths or PIDs and try again." ))
     }
     
-    if (!dir.exists(paste0(DerivDir, "/sub-", PID))){
+    if (!dir.exists(paste0(DerivDir, "sub-", PID))){
       stop(paste("No NiFTi directory could be found for participant", PID, ". Perhaps their data has not been pre-processed yet. Please check your filepaths or PIDs and try again." ))
     }
     
@@ -82,13 +82,13 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       
       # Calculate how many files they have in their raw directory
       # If we find any files at this path, proceed ...
-      if (length(list.files(paste0(RawDir, "/sub-", PID, "/",  Task, "/DICOM/"))) != 0){
-        nFiles <- length(list.files(paste0(RawDir, "/sub-", PID, "/",  Task, "/DICOM/")))
+      if (length(list.files(paste0(RawDir, "sub-", PID, "/",  Task, "/DICOM/"))) != 0){
+        nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/",  Task, "/DICOM/")))
       }
       
       # ... but if that directory doesn't work, try this other one.
-      if (length(list.files(paste0(RawDir, "/sub-", PID, "/",  Task, "/DICOM/"))) == 0){
-        nFiles <- length(list.files(paste0(RawDir, "/sub-", PID, "/scans/",  Task, "/DICOM/")))
+      if (length(list.files(paste0(RawDir, "sub-", PID, "/",  Task, "/DICOM/"))) == 0){
+        nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Task, "/DICOM/")))
       }
       
       # If the participant's uncertainty task has 759 files 
@@ -403,39 +403,39 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       }
       
       # If an onset directory doesn't already exist
-      if (!dir.exists(paste0(DerivDir, "/sub-", PID, "/","onset"))){
+      if (!dir.exists(paste0(DerivDir, "sub-", PID, "/","onset"))){
         # Create a new directory in the participant's raw files called "Onset"
-        dir.create(paste0(DerivDir, "/sub-", PID, "/","onset"))
+        dir.create(paste0(DerivDir, "sub-", PID, "/","onset"))
       }
       
       # Set our working directory to that onset directory
-      setwd(paste0(DerivDir, "/sub-", PID, "/","onset"))
+      setwd(paste0(DerivDir, "sub-", PID, "/","onset"))
       
-      if (SeparateFiles == T){
-        #Tracking which rows denote the start of a new trial 
-        rows <- seq(1, nrow(df_temp), nrow(df_temp) / Trial_Num)
-      }
+#       if (SeparateFiles == T){
+#         #Tracking which rows denote the start of a new trial 
+#         rows <- seq(1, nrow(df_temp), nrow(df_temp) / )
+#       }
       
-      if (SeparateFiles == F){
-        #Tracking which rows denote the start of a new trial 
-        rows <- 1
-      }
+#       if (SeparateFiles == F){
+#         #Tracking which rows denote the start of a new trial 
+#         rows <- 1
+#       }
       
       # Iterate through each row that starts a new trial in the new dataframe
-      for (TRIAL in 1:length(rows)){   
+#       for (TRIAL in 1:length(rows)){   
         # If we're working with the first half video ...
         if (Task == "3_task-1"){
-          if (length(rows) != 1){
-            # Save only the target row (which is a single observation) of our dataframe as a text file with this name
-            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trial_Num) - 1)),],
-                        paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL, Suffix ,"_timing.txt"),
-                        sep = "\t",
-                        row.names = FALSE,
-                        col.names = FALSE)
-          }
+#           if (length(rows) != 1){
+#             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
+#             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trial_Num) - 1)),],
+#                         paste0("sub-", PID, "_task-uncertainty_run-1_min-", TRIAL, Suffix ,"_timing.txt"),
+#                         sep = "\t",
+#                         row.names = FALSE,
+#                         col.names = FALSE)
+#           }
           
-          if (length(rows) == 1){
-            # Save only the target row (which is a single observation) of our dataframe as a text file with this name
+#           if (length(rows) == 1){
+#            # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp,
                         paste0("sub-", PID, "_task-uncertainty_run-1", Suffix ,"_timing.txt"),
                         sep = "\t",
@@ -446,19 +446,19 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
         
         # If we're working with the second half video ...
         if (Task == "5_task-2"){
-          if (length(rows) != 1){
+#           if (length(rows) != 1){
             
-            # Save the target row of our dataframe as a text file with a slightly different name
-            write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trial_Num
-            ) - 1)),],
-            paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL , Suffix ,"_timing.txt"),
-            sep = "\t",
-            row.names = FALSE,
-            col.names = FALSE)
-          }
+#             # Save the target row of our dataframe as a text file with a slightly different name
+#             write.table(df_temp[rows[TRIAL]:(rows[TRIAL] + ((nrow(df_temp) / Trial_Num
+#             ) - 1)),],
+#             paste0("sub-", PID, "_task-uncertainty_run-2_min-", TRIAL , Suffix ,"_timing.txt"),
+#             sep = "\t",
+#             row.names = FALSE,
+#             col.names = FALSE)
+#           }
           
-          if (length(rows) == 1){
-            # Save the target row of our dataframe as a text file with a slightly different name
+#           if (length(rows) == 1){
+#             # Save the target row of our dataframe as a text file with a slightly different name
             write.table(df_temp,
                         paste0("sub-", PID, "_task-uncertainty_run-2", Suffix ,"_timing.txt"),
                         sep = "\t",
