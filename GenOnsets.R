@@ -142,10 +142,6 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
               # And reformat the values to an array of numeric values
               unlist %>%
               as.numeric()
-            
-            # We may later transform this array and non-zero values will be hard to distinguish from zero values. 
-            # Therefore, we are identifying a zero value now for reference
-            zero_point <- which(paramod == 0)[1]
         
             # If we want to detrend the data ...
             if (Detrend == TRUE){
@@ -153,6 +149,10 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
               # Use the difference function to basically subtract from any given datapoint the value that preceded it
               paramod <- c(0, diff(paramod))
             }
+            
+            # We may later transform this array and non-zero values will be hard to distinguish from zero values. 
+            # Therefore, we are identifying a zero value now for reference
+            zero_point <- which(paramod == 0)[1]
             
             # If we want to use change point analysis ...
             if (Method == "CPA"){
