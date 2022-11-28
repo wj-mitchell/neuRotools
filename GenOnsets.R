@@ -442,7 +442,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                         row.names = FALSE,
                         col.names = FALSE)
           }
-        }
+        # }
         
         # If we're working with the second half video ...
         if (Task == "5_task-2"){
@@ -464,8 +464,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
-          }
-        }
+          # }
+        # }
       }
       
       if (Checkerboard == T){
