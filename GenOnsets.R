@@ -7,6 +7,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep/", # The directory in which your preprocessed data is stored
                       TR = 2, # The length of your repetition time in seconds
                       ShaveLength = 17, # How much time should be shaved from the beginning of your data in seconds
+                      ShavedFile = F, # Whether we want to generate a separate onset file for the shaved segment
                       Checkerboard = F, # Whether to output onset files for the spinning checkerboard 30s before and after video
                       Suffix = "", # A suffix to add to your onset files to better differentiate them from one another
 #                       SeparateFiles = F, # An argument as to whether each trial should be saved as a separate onset file
@@ -21,7 +22,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
                       Threshold = 2.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
                       OffsetLength = 0, # How many TRs the parametric modulator should be offset by (Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial).
-                      UseConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
+                      Override = NA # Generate a cluster-based parametric modulator, but then override the values (useful to generate mean EVs) 
+                      # UseConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
                       # GammifyBins = 6, # [IN DEVELOPMENT] Identify how many trials prior to the target trail should be affected by the gamma distribution
 ){
   
@@ -401,6 +403,11 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
         rm(paramod, paramod_bin, onset, onset_bin, duration, duration_bin)
       }
       
+      # If we want to override the values
+      if (!is.na(Override) & is.numeric(Override)){
+        df_temp[which(grep(names(df_temp), "^paramod"))] <- Override
+      }
+      
       # If an onset directory doesn't already exist
       if (!dir.exists(paste0(DerivDir, "sub-", PID, "/","onset"))){
         # Create a new directory in the participant's raw files called "Onset"
@@ -484,7 +491,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                     col.names = FALSE)
       }
       
-      if (ShaveLength > 0){
+      if (ShavedFile == TRUE & ShaveLength > 0){
         
         # Writing an onset file for the shaved data
         write.table(data.frame(x=60, 
@@ -499,20 +506,20 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       # Cleaning Space
       rm(df_temp, nFiles)
       
-      # If we want to take the extra step to use ConditionSorter
-      if (UseConditionSorter == TRUE){
-        
-        # Source the function
-        source("https://github.com/wj-mitchell/neuRotools/blob/main/ConditionSorter.R?raw=TRUE", local = T)
-        
-        # We can't have two arguments of the same name with nested functions, so I'm creating a temporary one
-        suffix <- Suffix
-        
-        # Use Condition Sorter
-        ConditionSorter(PIDs = PID,
-                        ZeroValue = zero_value,
-                        Suffix = suffix)
-      }
+      # # If we want to take the extra step to use ConditionSorter
+      # if (UseConditionSorter == TRUE){
+      #   
+      #   # Source the function
+      #   source("https://github.com/wj-mitchell/neuRotools/blob/main/ConditionSorter.R?raw=TRUE", local = T)
+      #   
+      #   # We can't have two arguments of the same name with nested functions, so I'm creating a temporary one
+      #   suffix <- Suffix
+      #   
+      #   # Use Condition Sorter
+      #   ConditionSorter(PIDs = PID,
+      #                   ZeroValue = zero_value,
+      #                   Suffix = suffix)
+      # }
     }
   }
 }
