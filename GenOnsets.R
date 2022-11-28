@@ -20,7 +20,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       BufferAfter = 10, # The time in seconds following each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
                       Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
                       Threshold = 2.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
-                      OffsetLength = 0 # How many TRs the parametric modulator should be offset by (Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial).
+                      OffsetLength = 0, # How many TRs the parametric modulator should be offset by (Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial).
+                      ConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
                       # GammifyBins = 6, # [IN DEVELOPMENT] Identify how many trials prior to the target trail should be affected by the gamma distribution
 ){
   
@@ -58,6 +59,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
   
   # Loading custom functions
   source("https://github.com/wj-mitchell/neuRotools/blob/main/rucleaner.R?raw=TRUE", local = T)
+  source("https://github.com/wj-mitchell/neuRotools/blob/main/ConditionSorter.R?raw=TRUE", local = T)
   # source("https://github.com/wj-mitchell/neuRotools/blob/main/gammify.R?raw=TRUE", local = T)  
   
   # Creating a For Loop that will Generate Our Three Column Files
@@ -185,6 +187,9 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
               paramod[paramod < Threshold] <- paramod[zero_point]
             }
             
+            # Our zero value may be vastly different from what it was now, so let's define it more concretely
+            zero_value <- paramod[zero_point]
+            
             # If we want to buffer inflections by some amount
             if (BufferBefore > 0 | BufferAfter > 0){
               
@@ -265,8 +270,14 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                 rm(paramod_temp)
               }
               
+              # Before we finish up, we may have just paved over our zero point, so let's redefine it to be sure
+              zero_point <- which(paramod == zero_value)[1]
+              
               # Rescaling our array through demeaning, standardizing, or both (or neither!)
               paramod <- as.numeric(scale(paramod, scale = ZScore, center = Demean))
+              
+              # We likely just redefined our zero value again, though, so one more time with the new zero point
+              zero_value <- paramod[zero_point]
             }
   
             # Offset ratings by a certain number of trials 
@@ -485,8 +496,21 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                     row.names = FALSE,
                     col.names = FALSE)
       }
+      
       # Cleaning Space
       rm(df_temp, nFiles, onset, paramod, duration)
+      
+      # If we want to take the extra step to use ConditionSorter
+      if (ConditionSorter == TRUE){
+        
+        # We can't have two arguments of the same name with nested functions, so I'm creating a temporary one
+        suffix <- Suffix
+        
+        # Use Condition Sorter
+        ConditionSorter <- ConditionSorter(PIDs = PID,
+                                           ZeroValue = zero_value,
+                                           Suffix = suffix)
+      }
     }
   }
 }
