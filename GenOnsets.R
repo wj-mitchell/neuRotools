@@ -297,72 +297,74 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       
       if (Method == "CPA" | Method == "Inflections"){
         
-        # Specifying our starting cluster
-        cluster_num <- 1  
-        
-        # Creating an array to store the clusters each collection of points belongs to
-        clusters <- rep(NA, length(inflections))
-        
-        # Iterate through each of the identified inflection points
-        for (DATAPOINT in 1:length(paramod)){
+        if ((str_detect(behav_file, "condB") & str_detect(Task, "task-2")) | (str_detect(behav_file, "condA") & str_detect(Task, "task-1"))){
+         
+          # Specifying our starting cluster
+          cluster_num <- 1  
           
-          # If we're on the first datapoint
-          if (DATAPOINT == 1){
-            
-            # Specify that that observation is in the first cluster
-            clusters[DATAPOINT] <- paste0("Cluster", cluster_num)
-          }
+          # Creating an array to store the clusters each collection of points belongs to
+          clusters <- rep(NA, length(inflections))
           
-          # If we're past the first observation
-          if (DATAPOINT > 1){
+          # Iterate through each of the identified inflection points
+          for (DATAPOINT in 1:length(paramod)){
             
-            # and the current iteration is different than the one that preceded it
-            if (paramod[DATAPOINT] != paramod[DATAPOINT - 1]){
+            # If we're on the first datapoint
+            if (DATAPOINT == 1){
               
-              # Increment the cluster number by 1
-              cluster_num <- cluster_num + 1
-              
-              # Label that observation as belonging to a new cluster
+              # Specify that that observation is in the first cluster
               clusters[DATAPOINT] <- paste0("Cluster", cluster_num)
             }
             
-            # and the current iteration is the same as the one that preceded it
-            if (paramod[DATAPOINT] == paramod[DATAPOINT - 1]){
-
-              # Label that observation as belonging to the same cluster
-              clusters[DATAPOINT] <- paste0("Cluster", cluster_num)
+            # If we're past the first observation
+            if (DATAPOINT > 1){
+              
+              # and the current iteration is different than the one that preceded it
+              if (paramod[DATAPOINT] != paramod[DATAPOINT - 1]){
+                
+                # Increment the cluster number by 1
+                cluster_num <- cluster_num + 1
+                
+                # Label that observation as belonging to a new cluster
+                clusters[DATAPOINT] <- paste0("Cluster", cluster_num)
+              }
+              
+              # and the current iteration is the same as the one that preceded it
+              if (paramod[DATAPOINT] == paramod[DATAPOINT - 1]){
+                
+                # Label that observation as belonging to the same cluster
+                clusters[DATAPOINT] <- paste0("Cluster", cluster_num)
+              }
             }
           }
+          
+          # Cleaning Our Space
+          rm(cluster_num)
+          
+          # Creating empty arrays
+          paramod_cluster <- rep(NA, length(unique(clusters)))
+          onset_cluster <- rep(NA, length(unique(clusters)))
+          duration_cluster <- rep(NA, length(unique(clusters)))
+          
+          # Iterating through each of the clusters
+          for (CLUSTER in 1:length(unique(clusters))){
+            
+            # Identifying the duration of each cluster by counting how many observations each has and multiplying it by TR
+            duration_cluster[CLUSTER] <- length(which(clusters == unique(clusters)[CLUSTER])) * TR
+            
+            # Identifying the onset of each cluster as the first onset associated with that cluster
+            onset_cluster[CLUSTER] <- onset[which(clusters == unique(clusters)[CLUSTER])][1]
+            
+            # Identifying the parametric modulator of each cluster as the first value associated with that cluster
+            paramod_cluster[CLUSTER] <- paramod[which(clusters == unique(clusters)[CLUSTER])][1]
+            
+          }
+          
+          # Concatenate onset, duration and parametric modulation into a data frame
+          df_temp <- data.frame(onset_cluster, duration_cluster, paramod_cluster) 
+          
+          # Cleaning Our Space
+          rm(paramod, paramod_cluster, onset, onset_cluster, duration, duration_cluster) 
         }
-        
-        # Cleaning Our Space
-        rm(cluster_num)
-        
-        # Creating empty arrays
-        paramod_cluster <- rep(NA, length(unique(clusters)))
-        onset_cluster <- rep(NA, length(unique(clusters)))
-        duration_cluster <- rep(NA, length(unique(clusters)))
-        
-        # Iterating through each of the clusters
-        for (CLUSTER in 1:length(unique(clusters))){
-          
-          # Identifying the duration of each cluster by counting how many observations each has and multiplying it by TR
-          duration_cluster[CLUSTER] <- length(which(clusters == unique(clusters)[CLUSTER])) * TR
-          
-          # Identifying the onset of each cluster as the first onset associated with that cluster
-          onset_cluster[CLUSTER] <- onset[which(clusters == unique(clusters)[CLUSTER])][1]
-          
-          # Identifying the parametric modulator of each cluster as the first value associated with that cluster
-          paramod_cluster[CLUSTER] <- paramod[which(clusters == unique(clusters)[CLUSTER])][1]
-          
-        }
-        
-        # Concatenate onset, duration and parametric modulation into a data frame
-        df_temp <- data.frame(onset_cluster, duration_cluster, paramod_cluster) 
-        
-        # Cleaning Our Space
-        rm(paramod, paramod_cluster, onset, onset_cluster, duration, duration_cluster)
-        
       }
       
       # If we want even length bins of observations
