@@ -3,6 +3,7 @@ ConditionSorter <- function(PIDs,
                             BehavDir = "/data/Uncertainty/data/behav/",
                             DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                             Tasks = c("3_task-1", "5_task-2"),
+                            ZeroValue = 0,
                             Suffix)
 {
   
@@ -38,7 +39,7 @@ ConditionSorter <- function(PIDs,
           df$Condition <- NA
           
           # If the first value of column 3 is 0
-          if (df$V3[1] == 0){
+          if (df$V3[1] == ZeroValue){
             
             # Set the value of Condition to "NoChange"      
             df$Condition[1] <- "NoChange"
@@ -46,7 +47,7 @@ ConditionSorter <- function(PIDs,
           }
           
           # If the first value of column 3 is not 0
-          if (df$V3[1] != 0){
+          if (df$V3[1] != ZeroValue){
             
             # Set the value of Condition to "Increase"
             df$Condition[1] <- "Increase"
