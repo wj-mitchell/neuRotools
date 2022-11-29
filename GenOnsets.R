@@ -24,7 +24,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Threshold = 2.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
                       OffsetLength = 0, # How many TRs the parametric modulator should be offset by (Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial).
                       Override = NA # Generate a cluster-based parametric modulator, but then override the values (useful to generate mean EVs) 
-                      # UseConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
+                      UseConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
                       # GammifyBins = 6, # [IN DEVELOPMENT] Identify how many trials prior to the target trail should be affected by the gamma distribution
 ){
   
