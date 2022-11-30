@@ -108,8 +108,13 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
         }
 
         # ... but if that directory doesn't work, try this other one.
-        if (length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/"))) == 0){
+        if (length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Folder, "/DICOM/"))) != 0){
           nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Folder, "/DICOM/")))
+        }
+        
+        # ... and if that didn't work, try this
+        if (length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/"))) != 0){
+          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/")))
         }
 
         # If the participant's uncertainty Task has 759 files 
