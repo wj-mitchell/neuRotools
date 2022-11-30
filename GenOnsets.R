@@ -455,7 +455,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
             
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp,
-                        paste0("sub-", PID, "_task-run-1_ParaMod-", ParaMod ,"_Method-", Method, "_Buffer-", BufferBefore, 
+                        paste0("sub-", PID, "_task-run-1_ParaMod-", ParaMod ,"_Override-", Overide, "_Method-", Method, "_Buffer-", BufferBefore, 
                                "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
@@ -480,7 +480,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
             
             # Save the target row of our dataframe as a text file with a slightly different name
             write.table(df_temp,
-                        paste0("sub-", PID, "_task-run-2_ParaMod-", ParaMod ,"_Method-", Method, "_Buffer-", BufferBefore, 
+                        paste0("sub-", PID, "_task-run-2_ParaMod-", ParaMod ,"_Override-", Overide, "_Method-", Method, "_Buffer-", BufferBefore, 
                                "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
@@ -493,7 +493,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
           
           # Save the target row of our dataframe as a text file with a slightly different name
           write.table(df_temp,
-                      paste0("sub-", PID, "_task-control_ParaMod-", ParaMod ,"_Method-", Method, "_Buffer-", BufferBefore, 
+                      paste0("sub-", PID, "_task-control_ParaMod-", ParaMod ,"_Override-", Overide, "_Method-", Method, "_Buffer-", BufferBefore, 
                                "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix ,"_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
@@ -539,7 +539,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
           source("https://github.com/wj-mitchell/neuRotools/blob/main/ConditionSorter.R?raw=TRUE", local = T)
   
           # We can't have two arguments of the same name with nested functions, so I'm creating a temporary one
-          suffix <- paste0("ParaMod-", ParaMod ,"_Method-", Method, "_Buffer-", BufferBefore, 
+          suffix <- paste0("ParaMod-", ParaMod ,"_Override-", Overide, "_Method-", Method, "_Buffer-", BufferBefore, 
                                "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix)
   
           # Use Condition Sorter
