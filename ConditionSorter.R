@@ -70,25 +70,29 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
             # Iterate through each subsequent row in the dataframe        
             for (row in 2:nrow(df)){
               
-              # If the value of our given row is the same as the previous
-              if (round(df$V3[1], 3) == round(ZeroValue, 3)){
+              # If the value of our given row is equal to zero
+              if (round(df$V3[row], 3) == round(ZeroValue, 3)){
                 
                 # Set the value of that row as "NoChange"    
                 df$Condition[row] <- "NoChange"
               }
               
-              # If the value of our given row is less than the previous
-              if (df$V3[row] < df$V3[row - 1]){
+              # If the value of our given row is not equal to zero
+              if (round(df$V3[row], 3) != round(ZeroValue, 3)){
                 
-                # Set the value of that row as "Decrease"    
-                df$Condition[row] <- "Decrease"
-              }
-              
-              # If the value of our given row is more than the previous
-              if (df$V3[row] > df$V3[row - 1]){
-                
-                # Set the value of that row as "Increase"    
-                df$Condition[row] <- "Increase"
+                # If the value of our given row is less than the previous
+                if (df$V3[row] < df$V3[row - 1]){
+
+                  # Set the value of that row as "Decrease"    
+                  df$Condition[row] <- "Decrease"
+                }
+
+                # If the value of our given row is more than the previous
+                if (df$V3[row] > df$V3[row - 1]){
+
+                  # Set the value of that row as "Increase"    
+                  df$Condition[row] <- "Increase"
+                }
               }
             }
             
