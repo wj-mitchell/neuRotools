@@ -21,7 +21,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       BufferBefore = 10, # The time in seconds prior to each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
                       BufferAfter = 10, # The time in seconds following each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
                       Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
-                      Threshold = 2.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
+                      Threshold = 2, # The value in standard deviation units below which parametric modulator inflections should be ignored
                       OffsetLength = 0, # How many TRs the parametric modulator should be offset by (Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial).
                       Override = NA, # Generate a cluster-based parametric modulator, but then override the values (useful to generate mean EVs) 
                       UseConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
@@ -455,7 +455,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
             
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp,
-                        paste0("sub-", PID, "_task-run-1_", Suffix ,"_timing.txt"),
+                        paste0("sub-", PID, "_task-run-1_ParaMod-", ParaMod ,"_Method-", Method, "_Buffer-", BufferBefore, 
+                               "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
@@ -479,7 +480,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
             
             # Save the target row of our dataframe as a text file with a slightly different name
             write.table(df_temp,
-                        paste0("sub-", PID, "_task-run-2_", Suffix ,"_timing.txt"),
+                        paste0("sub-", PID, "_task-run-2_ParaMod-", ParaMod ,"_Method-", Method, "_Buffer-", BufferBefore, 
+                               "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
@@ -491,7 +493,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
           
           # Save the target row of our dataframe as a text file with a slightly different name
           write.table(df_temp,
-                      paste0("sub-", PID, "_task-control_", Suffix ,"_timing.txt"),
+                      paste0("sub-", PID, "_task-control_ParaMod-", ParaMod ,"_Method-", Method, "_Buffer-", BufferBefore, 
+                               "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix ,"_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
                       col.names = FALSE)
@@ -536,7 +539,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
           source("https://github.com/wj-mitchell/neuRotools/blob/main/ConditionSorter.R?raw=TRUE", local = T)
   
           # We can't have two arguments of the same name with nested functions, so I'm creating a temporary one
-          suffix <- Suffix
+          suffix <- paste0("ParaMod-", ParaMod ,"_Method-", Method, "_Buffer-", BufferBefore, 
+                               "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix)
   
           # Use Condition Sorter
           ConditionSorter(PIDs = PID,
