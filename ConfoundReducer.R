@@ -20,8 +20,9 @@ ConfoundReducer <- function(PIDs,
   }
   
   # Check whether task was entered validly.
-  if (is.na(task) | is.null(task)){
-    stop(print(paste("Error: task should be the name heudiconv or your preferred BIDS organizing program assigns to your task. It cannot be left undefined. Please enter something and try again.")))
+  if (is.na(Components) | is.null(Components)){
+    # stop(print(paste("Error: task should be the name heudiconv or your preferred BIDS organizing program assigns to your task. It cannot be left undefined. Please enter something and try again.")))
+    stop(print(paste("Error: Components should be either 'Control' and/or 'Test'. It cannot be left undefined. Please enter something and try again.")))
   }
   
   # I need to return and add QA checks for censor and confound arguments
