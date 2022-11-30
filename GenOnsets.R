@@ -82,30 +82,48 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       for (COMPONENT in Components){
     
         ## GENERATING ONSET ----
+                
+        # If we're working with a test component
+        if (COMPONENT == "Test"){
+          
+          #Specifying a few misceallenous details specific to each task
+          TaskFiles <- 519
+          OnsetBuffer <- 17
+          Folder <- TASK
+        }
         
+        # If we're working with a control component
+        if (COMPONENT == "Control"){
+          
+          #Specifying a few misceallenous details specific to each task
+          TaskFiles <- 0
+          OnsetBuffer <- 0
+          Folder <- "7_task-3"
+        }
+       
         # Calculate how many files they have in their raw directory
         # If we find any files at this path, proceed ...
-        if (length(list.files(paste0(RawDir, "sub-", PID, "/",  TASK, "/DICOM/"))) != 0){
-          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/",  TASK, "/DICOM/")))
+        if (length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/"))) != 0){
+          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/")))
         }
-        
+
         # ... but if that directory doesn't work, try this other one.
-        if (length(list.files(paste0(RawDir, "sub-", PID, "/",  TASK, "/DICOM/"))) == 0){
-          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  TASK, "/DICOM/")))
+        if (length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/"))) == 0){
+          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Folder, "/DICOM/")))
         }
-        
+
         # If the participant's uncertainty Task has 759 files 
-        if (nFiles == 759){
+        if (nFiles == 240 + TaskFiles){
           # Create an onset sequence that removes the first 90 and last 90 seconds 
-          onset <- seq(107, ((nFiles * TR) - 90 - TR), TR)
+          onset <- seq((90 + OnsetBuffer), ((nFiles * TR) - 90 - TR), TR)
         }
-        
+
         # If the participant's uncertainty Task has 729 files
-        if (nFiles == 729){
+        if (nFiles == 210 + TaskFiles){
           # Create an onset sequence that removes the first 60 and last 60 seconds
-          onset <- seq(77, (nFiles * TR) - 60 - TR, TR)
-        }
-        
+          onset <- seq((60 + OnsetBuffer), (nFiles * TR) - 60 - TR, TR)
+        } 
+
         ## GENERATING DURATION ----
         # Create a duration sequence equal to the TR across the board
         duration <- rep(TR, length(onset))
