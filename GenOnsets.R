@@ -12,7 +12,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Suffix = "", # A suffix to add to your onset files to better differentiate them from one another
 #                       SeparateFiles = F, # An argument as to whether each trial should be saved as a separate onset file
                       ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
-                      Components = c("Control, Test"), # The study component we'd like to export as the parametric modulator
+                      Components = c("Control", "Test"), # The study component we'd like to export as the parametric modulator
                       Method = c("CPA", "Inflections", "Bins"), # Whether you'd like events in your parametric modulator to be defined by evenly-spaced bins (e.g., a 1200s video could be 20 trials each of 60s length), by any changes in ratings, or by using a PELT method change point analysis
                       BinLength = 30, # If using the Bin Method, the size of each bin in seconds
                       Demean = T, # Whether your parametric modulator should be demeaned (i.e., calculate the average and subtract it from each data point in the time course such that data on either side of the mean are balanced)
