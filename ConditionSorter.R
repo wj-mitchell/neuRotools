@@ -61,7 +61,7 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
             }
             
             # If the first value of column 3 is not 0
-            if (df$V3[1] != ZeroValue){
+            if (round(df$V3[1], 3) != round(ZeroValue, 3)){
               
               # Set the value of Condition to "Increase"
               df$Condition[1] <- "Increase"
@@ -71,7 +71,7 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
             for (row in 2:nrow(df)){
               
               # If the value of our given row is the same as the previous
-              if (round(df$V3[row], 3) == round(df$V3[row - 1], 3)){
+              if (round(df$V3[1], 3) == round(ZeroValue, 3)){
                 
                 # Set the value of that row as "NoChange"    
                 df$Condition[row] <- "NoChange"
