@@ -1,5 +1,3 @@
-
-
 GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Tasks = c("3_task-1", "5_task-2"), # An array of the different run name(s) that appear on the DICOM files
                       RawDir = "/data/Uncertainty/data/raw/", # The directory in which your DICOM files are stored
@@ -189,7 +187,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                 }
                 
                 # Now we'll actually censor those timepoints
-                paramod[paramod < Threshold] <- paramod[zero_point]
+                paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
               }
               
               # Our zero value may be vastly different from what it was now, so let's define it more concretely
