@@ -5,7 +5,7 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
                             DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep", # The directory in which your pre-processed data is stored
                             ZeroValue = 0, # The value that is equivalent to zero or non-movement; could be different from zero if z-scoring is used
                             ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
-                            Components = c("Control, Test"), # The study component we'd like to export as the parametric modulator
+                            Components = c("Control", "Test"), # The study component we'd like to export as the parametric modulator
                             Suffix # A suffix to add to your onset files to better differentiate them from one another
 ){
   
@@ -35,11 +35,11 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
             
               # Read in their data
               if (TASK == "5_task-2"){
-                df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-run-2", Suffix,"_timing.txt"))
+                df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-run-2_", Suffix,"_timing.txt"))
               }
               
               if (TASK == "3_task-1"){
-                df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-run-1", Suffix,"_timing.txt"))
+                df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-run-1_", Suffix,"_timing.txt"))
               }
             }
             
@@ -47,7 +47,7 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
             if (COMPONENT == "Control"){
               
               # Read in their data
-              df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-control", Suffix,"_timing.txt"))
+              df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-control_", Suffix,"_timing.txt"))
             }
             
             # Create a new empty column named Condition
