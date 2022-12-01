@@ -13,13 +13,15 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Components = c("Control", "Test"), # The study component we'd like to export as the parametric modulator
                       Method = c("CPA", "Inflections", "Bins"), # Whether you'd like events in your parametric modulator to be defined by evenly-spaced bins (e.g., a 1200s video could be 20 trials each of 60s length), by any changes in ratings, or by using a PELT method change point analysis
                       BinLength = 30, # If using the Bin Method, the size of each bin in seconds
-                      Demean = T, # Whether your parametric modulator should be demeaned (i.e., calculate the average and subtract it from each data point in the time course such that data on either side of the mean are balanced)
                       Detrend = T, # Whether your parametric modulator should be detrended (i.e., subtract the value of the subsequent time point from each time point so that only changes deviate from 0)
+                      AbsoluteValue = T, # Whether all inflections should be treated as positive; might be useful if you have no theoretical basis to suppose your neural regions respond differently to positive and negative inflections
+                      Demean = T, # Whether your parametric modulator should be demeaned (i.e., calculate the average and subtract it from each data point in the time course such that data on either side of the mean are balanced)
                       ZScore = T, # Whether your parametric modulator should be standardized (i.e., converted to standard deviation units to make it more comparable across individuals and studies)
+                      # Switch threshold to a percentage of the absolute range 
+                      Threshold = 1.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
+                      Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
                       BufferBefore = 10, # The time in seconds prior to each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
                       BufferAfter = 10, # The time in seconds following each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
-                      Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
-                      Threshold = 1.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
                       OffsetLength = 0, # How many TRs the parametric modulator should be offset by (Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial).
                       Override = NA, # Generate a cluster-based parametric modulator, but then override the values (useful to generate mean EVs) 
                       UseConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
@@ -179,6 +181,13 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                 paramod <- c(0, diff(paramod))
               }
               
+              # If we want to ignore inflection direction
+              if (AbsoluteValue == TRUE){
+                
+                # Make any non-zero value positive
+                paramod[which(paramod != 0)] <- abs(paramod[which(paramod != 0)]) 
+              }
+              
               # We may later transform this array and non-zero values will be hard to distinguish from zero values. 
               # Therefore, we are identifying a zero value now for reference
               zero_point <- which(paramod == 0)[1]
@@ -218,7 +227,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
               # If we want to use thresholding but no datapoints make it, break it off
               if (Threshold > 0 & all(abs(paramod) < Threshold)){
                 print(paste0("Participant ", PID, " does not have any observations that surpass the designated threshold (", 
-                             Threshold, "sd). As such, an onset file for this participant's ", COMPONENT, " trial could not be generated.",
+                             Threshold, " sd). As such, an onset file for this participant's ", COMPONENT, " trial could not be generated.",
                              " If you'd like an onset file, please rerun this function with a lower threshold."))
                 next
               }
