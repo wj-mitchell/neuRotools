@@ -217,7 +217,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
               
               # If we want to use thresholding but no datapoints make it, break it off
               if (Threshold > 0 & all(abs(paramod) < Threshold)){
-                print(paste0("Participant ", PID, " does not have any observations that surpass the designatedthreshold (", 
+                print(paste0("Participant ", PID, " does not have any observations that surpass the designated threshold (", 
                              Threshold, "sd). As such, an onset file for this participant's ", COMPONENT, " trial could not be generated.",
                              " If you'd like an onset file, please rerun this function with a lower threshold."))
                 next
