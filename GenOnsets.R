@@ -221,7 +221,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                 }
                 
                 # Now we'll actually censor those timepoints
-                paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
+                # paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
+                paramod[which(paramod < Threshold)] <- paramod[zero_point]
               }
               
               # If we want to use thresholding but no datapoints make it, break it off
