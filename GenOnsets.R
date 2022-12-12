@@ -14,11 +14,11 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Method = c("CPA", "Inflections", "Bins"), # Whether you'd like events in your parametric modulator to be defined by evenly-spaced bins (e.g., a 1200s video could be 20 trials each of 60s length), by any changes in ratings, or by using a PELT method change point analysis
                       BinLength = 30, # If using the Bin Method, the size of each bin in seconds
                       Detrend = T, # Whether your parametric modulator should be detrended (i.e., subtract the value of the subsequent time point from each time point so that only changes deviate from 0)
-                      AbsoluteValue = T, # Whether all inflections should be treated as positive; might be useful if you have no theoretical basis to suppose your neural regions respond differently to positive and negative inflections
+                      AbsoluteValue = F, # Whether all inflections should be treated as positive; might be useful if you have no theoretical basis to suppose your neural regions respond differently to positive and negative inflections
                       Demean = T, # Whether your parametric modulator should be demeaned (i.e., calculate the average and subtract it from each data point in the time course such that data on either side of the mean are balanced)
                       ZScore = T, # Whether your parametric modulator should be standardized (i.e., converted to standard deviation units to make it more comparable across individuals and studies)
                       # Switch threshold to a percentage of the absolute range 
-                      Threshold = 1.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
+                      Threshold = 2.0, # The value in standard deviation units below which parametric modulator inflections should be ignored
                       Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
                       BufferBefore = 10, # The time in seconds prior to each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
                       BufferAfter = 10, # The time in seconds following each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
@@ -222,7 +222,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                 
                 # Now we'll actually censor those timepoints
                 # paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
-                paramod[which(paramod < Threshold)] <- paramod[zero_point]
+                paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
               }
               
               # If we want to use thresholding but no datapoints make it, break it off
