@@ -20,7 +20,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       # Switch threshold to a percentage of the absolute range 
                       HighPass = F, # Whether all values below 0 should be treated as 0
                       LowPass = F, # Whether all values above 0 should be treated as 0
-                      Threshold = 2.0, # The value in standard deviation units below which parametric modulator inflections should be ignored
+                      Threshold = 2.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
                       Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
                       BufferBefore = 10, # The time in seconds prior to each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
                       BufferAfter = 10, # The time in seconds following each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
