@@ -211,10 +211,10 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
               paramod <- as.numeric(scale(paramod, scale = ZScore, center = Demean))
               
               # Any data points less than threshold will be converted to a value equal to zero
-              if (Threshold > 0 & any(abs(paramod) > Threshold)){
+              if (Threshold > 0 & any(paramod > Threshold)){
                 
                 # First I'm removing those timepoints from the inflections variable, if they exist there
-                for (CENSORED in which(abs(paramod) < Threshold)){
+                for (CENSORED in which(paramod < Threshold)){
                   if (any(inflections == CENSORED)){
                     inflections <- inflections[-which(inflections == CENSORED)]
                   }
@@ -222,7 +222,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                 
                 # Now we'll actually censor those timepoints
                 # paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
-                paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
+                paramod[which(paramod < Threshold)] <- paramod[zero_point]
               }
               
               # If we want to use thresholding but no datapoints make it, break it off
