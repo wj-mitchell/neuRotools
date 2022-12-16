@@ -18,6 +18,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Demean = T, # Whether your parametric modulator should be demeaned (i.e., calculate the average and subtract it from each data point in the time course such that data on either side of the mean are balanced)
                       ZScore = T, # Whether your parametric modulator should be standardized (i.e., converted to standard deviation units to make it more comparable across individuals and studies)
                       # Switch threshold to a percentage of the absolute range 
+                      HighPass = F, # Whether all values below 0 should be treated as 0
+                      LowPass = F, # Whether all values above 0 should be treated as 0
                       Threshold = 2.0, # The value in standard deviation units below which parametric modulator inflections should be ignored
                       Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
                       BufferBefore = 10, # The time in seconds prior to each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
@@ -210,11 +212,25 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
               # Scaling our array through demeaning, standardizing, or both (or neither!)
               paramod <- as.numeric(scale(paramod, scale = ZScore, center = Demean))
               
+              # If we want to remove low values
+              if (HighPass == TRUE){
+                
+                # Identify which paramod values are below 0 and make them zero
+                paramod[paramod <= paramod[zero_point]] <- paramod[zero_point]
+              }
+              
+              # If we want to remove high values
+              if (LowPass == TRUE){
+                
+                # Identify which paramod values are above 0 and make them zero
+                paramod[paramod >= paramod[zero_point]] <- paramod[zero_point]
+              }
+              
               # Any data points less than threshold will be converted to a value equal to zero
-              if (Threshold > 0 & any(paramod > Threshold)){
+              if (Threshold > 0 & any(abs(paramod) > Threshold)){
                 
                 # First I'm removing those timepoints from the inflections variable, if they exist there
-                for (CENSORED in which(paramod < Threshold)){
+                for (CENSORED in which(abs(paramod) < Threshold)){
                   if (any(inflections == CENSORED)){
                     inflections <- inflections[-which(inflections == CENSORED)]
                   }
@@ -222,7 +238,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                 
                 # Now we'll actually censor those timepoints
                 # paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
-                paramod[which(paramod < Threshold)] <- paramod[zero_point]
+                paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
               }
               
               # If we want to use thresholding but no datapoints make it, break it off
