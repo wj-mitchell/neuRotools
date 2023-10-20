@@ -1,6 +1,6 @@
 ## cormat_long
 
-cormat_long <- function(data){
+cormat_long <- function(data = .){
   
   df <- data %>%
         cor %>%
