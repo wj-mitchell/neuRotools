@@ -5,7 +5,7 @@
 ConfoundReducer <- function(PIDs,
                             dir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
                             runs = 2,
-                            task = "uncertainty",
+                            Components = c("Test", "Control"),
                             motion_censor = TRUE,
                             motion_censor_thresh = 0.9){
   
@@ -20,11 +20,100 @@ ConfoundReducer <- function(PIDs,
   }
   
   # Check whether task was entered validly.
-  if (is.na(task) | is.null(task)){
-    stop(print(paste("Error: task should be the name heudiconv or your preferred BIDS organizing program assigns to your task. It cannot be left undefined. Please enter something and try again.")))
+  if (any(is.na(Components)) | any(is.null(Components))){
+    # stop(print(paste("Error: task should be the name heudiconv or your preferred BIDS organizing program assigns to your task. It cannot be left undefined. Please enter something and try again.")))
+    stop(print(paste("Error: Components should be either 'Control' and/or 'Test'. It cannot be left undefined. Please enter something and try again.")))
   }
   
   # I need to return and add QA checks for censor and confound arguments
+  
+  # Creating a subfunction to make this all smoother
+  Reducer <- function(file = filename)
+  {
+    # Check whether this file exists, and if it doesn't, print an error and give up.
+    if (!file.exists(file)){
+      print(paste("Error:", PID, "'s", Run, "file could not be located:", file))
+    }
+    
+    # If it does exist . . . 
+    if (file.exists(file)){
+      
+      # Check if the file is empty
+      if (file.info(file)$size <= 0){
+        print(paste("Error:", PID,"'s ", Run,"file does not contain data:", file))
+      }
+      
+      # And if the file isn't empty . . .
+      if (file.info(file)$size > 0){
+        
+        # Read in the file as a dataframe
+        df <- read.table(file = file,
+                         sep = '\t',
+                         header = T,
+                         na.strings = c("","NA","n/a"))
+        
+        # Specifying confounds
+        confounds = c("a_comp_cor_00","a_comp_cor_01","a_comp_cor_02",
+                      "a_comp_cor_03","a_comp_cor_04","a_comp_cor_05", 
+                      names(df)[grep(x = names(df), pattern = "^cosine*")],
+                      names(df)[grep(x = names(df), pattern = "^trans*")], 
+                      names(df)[grep(x = names(df), pattern = "^rot*")], 
+                      "framewise_displacement", "dvars", "tcompcor")
+        
+        # Subset the desired columns
+        df <- subset(df, select = confounds)
+        
+        # Check if censoring should occur
+        if (motion_censor == TRUE){
+          
+          # Tracking how many variables are present
+          cols <- names(df)
+          
+          # Iterate through each observation in the dataframe
+          for (OBS in 2:nrow(df)){
+            
+            # If that observation isn't an NA
+            if (!is.na(df$framewise_displacement[OBS])){
+              
+              # If that observation has a FWD value greater than the threshold ...
+              if (df$framewise_displacement[OBS] > motion_censor_thresh){
+                
+                # Create a new column of zeroes
+                df[,ncol(df) + 1] <- 0
+                
+                # Add a one for this specific observation in that column
+                df[OBS, ncol(df)] <- 1
+                
+              }
+            }
+          }
+          
+          # If any of the observations were greater than out threshold
+          if (length(which(df$framewise_displacement > motion_censor_thresh)) > 0){
+            
+            # If we have more than 9 motion outliers
+            if (length(which(df$framewise_displacement > motion_censor_thresh)) > 09){
+              
+              # Assigning variable headers 
+              names(df) <- c(cols, 
+                             paste0("motion_outlier0", 1:9),
+                             paste0("motion_outlier", 10:length(which(df$framewise_displacement > motion_censor_thresh))))
+            }
+            
+            # If we have less than 10 motion outliers
+            if (length(which(df$framewise_displacement > motion_censor_thresh)) < 10){
+              
+              # Assigning variable headers 
+              names(df) <- c(cols, 
+                             paste0("motion_outlier0", 1:length(which(df$framewise_displacement > motion_censor_thresh))))
+            }
+          }
+        }
+      }
+    }
+    
+    return(df)
+  }
   
   # Dependencies
   library(assertthat)
@@ -34,100 +123,64 @@ ConfoundReducer <- function(PIDs,
   # Iterating through each of the participants
   for (PID in PIDs){
     
-    # Iterate through the runs in the study
-    for (Run in paste0("run-",1:runs)){
+    # Iterate through the components
+    for (COMPONENT in Components){
       
-      # Create a variable to capture the file name for this run
-      filename <- paste0(dir, "/sub-", PID, "/func/sub-", PID, "_task-", task,"_", Run,"_desc-confounds_timeseries.tsv")
-      
-      # Check whether this file exists, and if it doesn't, print an error and give up.
-      if (!file.exists(filename)){
-        print(paste("Error:", PID, "'s", Run, "file could not be located:", filename))
-      }
-      
-      # If it does exist . . . 
-      if (file.exists(filename)){
+      # If we're looking at a control component
+      if (COMPONENT == "Control"){
         
-        # Check if the file is empty
-        if (file.info(filename)$size <= 0){
-          print(paste("Error:", PID,"'s ", Run,"file does not contain data:", filename))
+        # If the luma file exists
+        if (file.exists(paste0(dir, "/sub-", PID, "/func/sub-", PID, "_task-luma_desc-confounds_timeseries.tsv"))){
+         
+          # Create a variable to capture the file name for this run
+          filename <- paste0(dir, "/sub-", PID, "/func/sub-", PID, "_task-luma_desc-confounds_timeseries.tsv")
+          
+          # Note what kind of control we have here
+          control <- "luma"
         }
         
-        # And if the file isn't empty . . .
-        if (file.info(filename)$size > 0){
+        # If the fish file exists
+        if (file.exists(paste0(dir, "/sub-", PID, "/func/sub-", PID, "_task-fish_desc-confounds_timeseries.tsv"))){
           
-          # Read in the file as a dataframe
-          df <- read.table(file = filename,
-                           sep = '\t',
-                           header = T,
-                           na.strings = c("","NA","n/a"))
+          # Create a variable to capture the file name for this run
+          filename <- paste0(dir, "/sub-", PID, "/func/sub-", PID, "_task-fish_desc-confounds_timeseries.tsv")
           
-          # Specifying confounds
-          confounds = c("a_comp_cor_00","a_comp_cor_01","a_comp_cor_02",
-                        "a_comp_cor_03","a_comp_cor_04","a_comp_cor_05", 
-                        names(df)[grep(x = names(df), pattern = "^cosine*")],
-                        names(df)[grep(x = names(df), pattern = "^trans*")], 
-                        names(df)[grep(x = names(df), pattern = "^rot*")], 
-                        "framewise_displacement", "dvars", "tcompcor")
+          # Note what kind of control we have here
+          control <- "fish"
+        }
+        
+        # Run the found reducer subfunction
+        df <- Reducer(file = filename)
+        
+        # And then save that dataframe as a new text file within that "look_onsets" folder
+        write.table(df, 
+                    file = paste0(dir, "/sub-", PID, "/func/sub-", PID, "_task-", control, "_desc-confounds_timeseries_reduced.tsv"), 
+                    sep = "\t",
+                    row.names = FALSE,
+                    col.names = TRUE)
+      }
+      
+      # If we're looking at a test component
+      if (COMPONENT == "Test"){  
+        
+        # Iterate through the runs in the study
+        for (Run in paste0("run-",1:runs)){
+        
+          # Create a variable to capture the file name for this run
+          filename <- paste0(dir, "/sub-", PID, "/func/sub-", PID, "_task-uncertainty_", Run,"_desc-confounds_timeseries.tsv")
           
-          # Subset the desired columns
-          df <- subset(df, select = confounds)
-          
-          # Check if censoring should occur
-          if (motion_censor == TRUE){
-            
-            # Tracking how many variables are present
-            cols <- names(df)
-            
-            # Iterate through each observation in the dataframe
-            for (OBS in 2:nrow(df)){
-              
-              # If that observation isn't an NA
-              if (!is.na(df$framewise_displacement[OBS])){
-                
-                # If that observation has a FWD value greater than the threshold ...
-                if (df$framewise_displacement[OBS] > motion_censor_thresh){
-                  
-                  # Create a new column of zeroes
-                  df[,ncol(df) + 1] <- 0
-                  
-                  # Add a one for this specific observation in that column
-                  df[OBS, ncol(df)] <- 1
-                  
-                }
-              }
-            }
-            
-            # If any of the observations were greater than out threshold
-            if (length(which(df$framewise_displacement > motion_censor_thresh)) > 0){
-              
-              # If we have more than 9 motion outliers
-              if (length(which(df$framewise_displacement > motion_censor_thresh)) > 09){
-                
-                # Assigning variable headers 
-                names(df) <- c(cols, 
-                               paste0("motion_outlier0", 1:9),
-                               paste0("motion_outlier", 10:length(which(df$framewise_displacement > motion_censor_thresh))))
-              }
-              
-              # If we have less than 10 motion outliers
-              if (length(which(df$framewise_displacement > motion_censor_thresh)) < 10){
-                
-                # Assigning variable headers 
-                names(df) <- c(cols, 
-                               paste0("motion_outlier0", 1:length(which(df$framewise_displacement > motion_censor_thresh))))
-              }
-            }
-          }
+          # Run the found reducer subfunction
+          df <- Reducer(file = filename)
           
           # And then save that dataframe as a new text file within that "look_onsets" folder
           write.table(df, 
-                      file = paste0(dir, "/sub-", PID, "/func/sub-", PID, "_task-", task, "_", Run,"_desc-confounds_timeseries_reduced.tsv"), 
+                      file = paste0(dir, "/sub-", PID, "/func/sub-", PID, "_task-uncertainty_", Run,"_desc-confounds_timeseries_reduced.tsv"), 
                       sep = "\t",
                       row.names = FALSE,
                       col.names = TRUE)
+          
         }
-      } 
+      }
     }
   }
 }

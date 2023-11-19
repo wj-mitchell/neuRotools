@@ -1,5 +1,3 @@
-
-
 GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Tasks = c("3_task-1", "5_task-2"), # An array of the different run name(s) that appear on the DICOM files
                       RawDir = "/data/Uncertainty/data/raw/", # The directory in which your DICOM files are stored
@@ -12,19 +10,23 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Suffix = "", # A suffix to add to your onset files to better differentiate them from one another
 #                       SeparateFiles = F, # An argument as to whether each trial should be saved as a separate onset file
                       ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
-                      Components = c("Control, Test"), # The study component we'd like to export as the parametric modulator
+                      Components = c("Control", "Test"), # The study component we'd like to export as the parametric modulator
                       Method = c("CPA", "Inflections", "Bins"), # Whether you'd like events in your parametric modulator to be defined by evenly-spaced bins (e.g., a 1200s video could be 20 trials each of 60s length), by any changes in ratings, or by using a PELT method change point analysis
                       BinLength = 30, # If using the Bin Method, the size of each bin in seconds
-                      Demean = T, # Whether your parametric modulator should be demeaned (i.e., calculate the average and subtract it from each data point in the time course such that data on either side of the mean are balanced)
                       Detrend = T, # Whether your parametric modulator should be detrended (i.e., subtract the value of the subsequent time point from each time point so that only changes deviate from 0)
+                      AbsoluteValue = F, # Whether all inflections should be treated as positive; might be useful if you have no theoretical basis to suppose your neural regions respond differently to positive and negative inflections
+                      Demean = T, # Whether your parametric modulator should be demeaned (i.e., calculate the average and subtract it from each data point in the time course such that data on either side of the mean are balanced)
                       ZScore = T, # Whether your parametric modulator should be standardized (i.e., converted to standard deviation units to make it more comparable across individuals and studies)
+                      # Switch threshold to a percentage of the absolute range 
+                      HighPass = F, # Whether all values below 0 should be treated as 0
+                      LowPass = F, # Whether all values above 0 should be treated as 0
+                      Threshold = 2.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
+                      Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
                       BufferBefore = 10, # The time in seconds prior to each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
                       BufferAfter = 10, # The time in seconds following each inflection point that should take the same value as the inflection point (to be used when the onset/duration of the event is probabilistic or unknown)
-                      Smoothing = T, # Whether inflections within the same overlapping bufferzones should be smoothed together (i.e., averaged across all inflection points)
-                      Threshold = 2.5, # The value in standard deviation units below which parametric modulator inflections should be ignored
                       OffsetLength = 0, # How many TRs the parametric modulator should be offset by (Negative values will lag a given parametric modulation value behind it's associated trial, and positive value will make a parametric value precede its trial).
-                      Override = NA # Generate a cluster-based parametric modulator, but then override the values (useful to generate mean EVs) 
-                      UseConditionSorter = T # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
+                      Override = NA, # Generate a cluster-based parametric modulator, but then override the values (useful to generate mean EVs) 
+                      UseConditionSorter = F # Whether to use the custom condition sorter function which will break parametric modulations into three onset types: increases, decreases, or no changes
                       # GammifyBins = 6, # [IN DEVELOPMENT] Identify how many trials prior to the target trail should be affected by the gamma distribution
 ){
   
@@ -84,30 +86,55 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
       for (COMPONENT in Components){
     
         ## GENERATING ONSET ----
+                
+        # If we're working with a test component
+        if (COMPONENT == "Test"){
+          
+          #Specifying a few misceallenous details specific to each task
+          TaskFiles <- 519
+          OnsetBuffer <- 17
+          Folder <- TASK
+        }
         
+        # If we're working with a control component
+        if (COMPONENT == "Control"){
+          
+          #Specifying a few misceallenous details specific to each task
+          TaskFiles <- 0
+          OnsetBuffer <- 0
+          Folder <- "7_task-3"
+        }
+       
         # Calculate how many files they have in their raw directory
         # If we find any files at this path, proceed ...
-        if (length(list.files(paste0(RawDir, "sub-", PID, "/",  TASK, "/DICOM/"))) != 0){
-          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/",  TASK, "/DICOM/")))
+        if (length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/"))) != 0){
+          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/")))
         }
-        
+
         # ... but if that directory doesn't work, try this other one.
-        if (length(list.files(paste0(RawDir, "sub-", PID, "/",  TASK, "/DICOM/"))) == 0){
-          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  TASK, "/DICOM/")))
+        if (length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Folder, "/DICOM/"))) != 0){
+          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Folder, "/DICOM/")))
         }
         
+        # ... and if that didn't work, try this
+        if ((length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/"))) == 0) & 
+            (length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Folder, "/DICOM/"))) == 0) &
+            (length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/"))) != 0)){
+          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/")))
+        }
+
         # If the participant's uncertainty Task has 759 files 
-        if (nFiles == 759){
+        if (nFiles == 240 + TaskFiles){
           # Create an onset sequence that removes the first 90 and last 90 seconds 
-          onset <- seq(107, ((nFiles * TR) - 90 - TR), TR)
+          onset <- seq((90 + OnsetBuffer), ((nFiles * TR) - 90 - TR), TR)
         }
-        
+
         # If the participant's uncertainty Task has 729 files
-        if (nFiles == 729){
+        if (nFiles == 210 + TaskFiles){
           # Create an onset sequence that removes the first 60 and last 60 seconds
-          onset <- seq(77, (nFiles * TR) - 60 - TR, TR)
-        }
-        
+          onset <- seq((60 + OnsetBuffer), (nFiles * TR) - 60 - TR, TR)
+        } 
+
         ## GENERATING DURATION ----
         # Create a duration sequence equal to the TR across the board
         duration <- rep(TR, length(onset))
@@ -156,6 +183,13 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                 paramod <- c(0, diff(paramod))
               }
               
+              # If we want to ignore inflection direction
+              if (AbsoluteValue == TRUE){
+                
+                # Make any non-zero value positive
+                paramod[which(paramod != 0)] <- abs(paramod[which(paramod != 0)]) 
+              }
+              
               # We may later transform this array and non-zero values will be hard to distinguish from zero values. 
               # Therefore, we are identifying a zero value now for reference
               zero_point <- which(paramod == 0)[1]
@@ -178,8 +212,22 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
               # Scaling our array through demeaning, standardizing, or both (or neither!)
               paramod <- as.numeric(scale(paramod, scale = ZScore, center = Demean))
               
+              # If we want to remove low values
+              if (HighPass == TRUE){
+                
+                # Identify which paramod values are below 0 and make them zero
+                paramod[paramod <= paramod[zero_point]] <- paramod[zero_point]
+              }
+              
+              # If we want to remove high values
+              if (LowPass == TRUE){
+                
+                # Identify which paramod values are above 0 and make them zero
+                paramod[paramod >= paramod[zero_point]] <- paramod[zero_point]
+              }
+              
               # Any data points less than threshold will be converted to a value equal to zero
-              if (Threshold > 0){
+              if (Threshold > 0 & any(abs(paramod) > Threshold)){
                 
                 # First I'm removing those timepoints from the inflections variable, if they exist there
                 for (CENSORED in which(abs(paramod) < Threshold)){
@@ -189,7 +237,16 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                 }
                 
                 # Now we'll actually censor those timepoints
-                paramod[paramod < Threshold] <- paramod[zero_point]
+                # paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
+                paramod[which(abs(paramod) < Threshold)] <- paramod[zero_point]
+              }
+              
+              # If we want to use thresholding but no datapoints make it, break it off
+              if (Threshold > 0 & all(abs(paramod) < Threshold)){
+                print(paste0("Participant ", PID, " does not have any observations that surpass the designated threshold (", 
+                             Threshold, " sd). As such, an onset file for this participant's ", COMPONENT, " trial could not be generated.",
+                             " If you'd like an onset file, please rerun this function with a lower threshold."))
+                next
               }
               
               # Our zero value may be vastly different from what it was now, so let's define it more concretely
@@ -455,7 +512,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
             
             # Save only the target row (which is a single observation) of our dataframe as a text file with this name
             write.table(df_temp,
-                        paste0("sub-", PID, "_task-run-1_", Suffix ,"_timing.txt"),
+                        paste0("sub-", PID, "_task-run-1_ParaMod-", ParaMod ,"_Override-", Override, "_Method-", Method, "_Buffer-", BufferBefore, 
+                               "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
@@ -479,7 +537,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
             
             # Save the target row of our dataframe as a text file with a slightly different name
             write.table(df_temp,
-                        paste0("sub-", PID, "_task-run-2_", Suffix ,"_timing.txt"),
+                        paste0("sub-", PID, "_task-run-2_ParaMod-", ParaMod ,"_Override-", Override, "_Method-", Method, "_Buffer-", BufferBefore, 
+                               "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix ,"_timing.txt"),
                         sep = "\t",
                         row.names = FALSE,
                         col.names = FALSE)
@@ -491,7 +550,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
           
           # Save the target row of our dataframe as a text file with a slightly different name
           write.table(df_temp,
-                      paste0("sub-", PID, "_task-control_", Suffix ,"_timing.txt"),
+                      paste0("sub-", PID, "_task-control_ParaMod-", ParaMod ,"_Override-", Override, "_Method-", Method, "_Buffer-", BufferBefore, 
+                               "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix ,"_timing.txt"),
                       sep = "\t",
                       row.names = FALSE,
                       col.names = FALSE)
@@ -536,7 +596,8 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
           source("https://github.com/wj-mitchell/neuRotools/blob/main/ConditionSorter.R?raw=TRUE", local = T)
   
           # We can't have two arguments of the same name with nested functions, so I'm creating a temporary one
-          suffix <- Suffix
+          suffix <- paste0("ParaMod-", ParaMod ,"_Override-", Override, "_Method-", Method, "_Buffer-", BufferBefore, 
+                               "s_Smoothing-", Smoothing, "_Threshold-", Threshold, "sd_Offset-", OffsetLength, "s_", Suffix)
   
           # Use Condition Sorter
           ConditionSorter(PIDs = PID,

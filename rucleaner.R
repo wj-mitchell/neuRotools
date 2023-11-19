@@ -14,6 +14,11 @@
                                     # captured using a checkerboard first, should probably be ignored in fMRI research. 
 {
   # Setup ----
+  # Loading packages
+  if (require("pacman") == FALSE){
+    install.packages("pacman")
+  }
+  
   ## Package Loading ----
   pacman::p_load(assertthat, tidyverse)
   

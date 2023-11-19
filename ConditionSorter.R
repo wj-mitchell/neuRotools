@@ -5,7 +5,7 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
                             DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep", # The directory in which your pre-processed data is stored
                             ZeroValue = 0, # The value that is equivalent to zero or non-movement; could be different from zero if z-scoring is used
                             ParaMod = T, # Whether you'd like to use behavioral data as a parametric modulator
-                            Components = c("Control, Test"), # The study component we'd like to export as the parametric modulator
+                            Components = c("Control", "Test"), # The study component we'd like to export as the parametric modulator
                             Suffix # A suffix to add to your onset files to better differentiate them from one another
 ){
   
@@ -35,11 +35,11 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
             
               # Read in their data
               if (TASK == "5_task-2"){
-                df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-run-2", Suffix,"_timing.txt"))
+                df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-run-2_", Suffix,"_timing.txt"))
               }
               
               if (TASK == "3_task-1"){
-                df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-run-1", Suffix,"_timing.txt"))
+                df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-run-1_", Suffix,"_timing.txt"))
               }
             }
             
@@ -47,21 +47,21 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
             if (COMPONENT == "Control"){
               
               # Read in their data
-              df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-control", Suffix,"_timing.txt"))
+              df <- read.table(paste0("/data/Uncertainty/data/deriv/pipeline_1/fmriprep/sub-", PID, "/onset/sub-", PID, "_task-control_", Suffix,"_timing.txt"))
             }
             
             # Create a new empty column named Condition
             df$Condition <- NA
             
             # If the first value of column 3 is 0
-            if (df$V3[1] == ZeroValue){
+            if (round(df$V3[1], 3) == round(ZeroValue, 3)){
               
               # Set the value of Condition to "NoChange"      
               df$Condition[1] <- "NoChange"
             }
             
             # If the first value of column 3 is not 0
-            if (df$V3[1] != ZeroValue){
+            if (round(df$V3[1], 3) != round(ZeroValue, 3)){
               
               # Set the value of Condition to "Increase"
               df$Condition[1] <- "Increase"
@@ -70,25 +70,29 @@ ConditionSorter <- function(PIDs, # An array of participant IDs to Process
             # Iterate through each subsequent row in the dataframe        
             for (row in 2:nrow(df)){
               
-              # If the value of our given row is the same as the previous
-              if (df$V3[row] == df$V3[row - 1]){
+              # If the value of our given row is equal to zero
+              if (round(df$V3[row], 3) == round(ZeroValue, 3)){
                 
                 # Set the value of that row as "NoChange"    
                 df$Condition[row] <- "NoChange"
               }
               
-              # If the value of our given row is less than the previous
-              if (df$V3[row] < df$V3[row - 1]){
+              # If the value of our given row is not equal to zero
+              if (round(df$V3[row], 3) != round(ZeroValue, 3)){
                 
-                # Set the value of that row as "Decrease"    
-                df$Condition[row] <- "Decrease"
-              }
-              
-              # If the value of our given row is more than the previous
-              if (df$V3[row] > df$V3[row - 1]){
-                
-                # Set the value of that row as "Increase"    
-                df$Condition[row] <- "Increase"
+                # If the value of our given row is less than the previous
+                if (df$V3[row] < df$V3[row - 1]){
+
+                  # Set the value of that row as "Decrease"    
+                  df$Condition[row] <- "Decrease"
+                }
+
+                # If the value of our given row is more than the previous
+                if (df$V3[row] > df$V3[row - 1]){
+
+                  # Set the value of that row as "Increase"    
+                  df$Condition[row] <- "Increase"
+                }
               }
             }
             
