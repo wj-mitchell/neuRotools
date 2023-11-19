@@ -2,7 +2,7 @@
 
 # I tried using the convolve function from that stats package to complete a linear convolution of an HRF function with a parametric modulator, but I found that the results were a little confusing. When I did the hand-calculations to check, the results were not consistent with a straight-forward linear convolution so I figured it would be simple enough to just make my own function to do this. If you feed it a series and some weights, it will add an HRF event to every non-zero entry in the series. Overlapping HRF functions are additive. The standard weights sum to 1, but will be scaled to the series value, so if the series value that launches the HRF event is 2, then the value of each weight will be doubled before being applied to the series. Lastly, if we have a TR that is different than 1, we can resample these weights by modifying either p or q. For example, if I change q to 2, reflecting a TR of 2 seconds, then these weights will be downsampled to 8 values rather than the standard 15. If I change q to 0.5, I will upsample to a weight series of 30 values. 
 
-HRF_convolve <- function(series, 
+HRF_convolve <- function(series = ., 
                          weights = c(0, 0.000354107958396228, 0.0220818694830938, 0.116001537001027, 0.221299059999514, 0.242353095826523, 0.186831750619196, 0.113041009515928, 0.0572809597709863, 0.0253492394574127, 0.0100814114758446, 0.00367740475539297, 0.00124901102357508, 0.000399543113110135, 0),
                          resample_p = 1,
                          resample_q = 1){
