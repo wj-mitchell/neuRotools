@@ -39,7 +39,7 @@ Sliding_Window_Cor <- function(x,
   pacman::p_load(stats)
   
   # Adding custom functions
-  source("circle_shift.R")
+  source("https://raw.githubusercontent.com/wj-mitchell/neuRotools/main/circle_shift.R", local = T)
 
 # ----- DATA PREP -----
 
