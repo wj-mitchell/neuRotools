@@ -74,6 +74,6 @@ lmer_extracter <- function(Old_Model = NA, # The base or null model to compare a
   }
   
   if (!is.na(Old_Model)){
-    return(View(as.data.frame(cbind(results,compare))))
+    return(as.data.frame(cbind(results,compare)))
   }
 }
