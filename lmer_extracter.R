@@ -65,7 +65,13 @@ lmer_extracter <- function(Old_Model = NA, # The base or null model to compare a
     
     # Adding new column names
     names(compare) <- col
-  }
+
+    # Unlisting columns
+    for (COL in 1:ncol(compare)){
+      if (is.list(compare[,COL]))
+        compare[,COL] <- unlist(compare[,COL])
+      }
+    }
   
   # ----- MERGING SUMMARY AND COMPARISON -----
   
