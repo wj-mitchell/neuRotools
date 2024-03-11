@@ -27,7 +27,7 @@ lag_finder <- function(lags = seq(-40,40,1), # all of the possible lags to test
     stop("Time must be a numerically structured variable in dataframes x and y. Please try coerecing them into the correct format and try again")
   }
   
-  if (!is.numeric(lags) | length(legs) < 2){
+  if (!is.numeric(lags) | length(lags) < 2){
     stop("The lags you submit must be a numerically structured array of 2 or more values. Please correct this and try again")
   }
   
