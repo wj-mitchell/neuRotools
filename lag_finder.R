@@ -1,7 +1,7 @@
-lag_finder <- function(lags = seq(-40,40,1), # all of the possible lags to test
-                       time, # The time variable which you wish to apply the lags to
-                       x, # The data to add a time-shift and correlate with your y variable
-                       y, # The data to correlate with your x variable
+lag_finder <- function(time, # An array of numeric values which you wish to apply the lags to
+                       x, # An array of numeric values to add a time-shift and correlate with your y variable
+                       y, # An array of numeric values to correlate with your x variable
+                       lags = seq(-40,40,1), # all of the possible lags to test
                        window_size = NA, # the size of the sliding window that we should apply  
                        method = "spearman") # Which method that you want cor() to use
 { 
