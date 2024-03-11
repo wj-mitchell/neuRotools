@@ -65,7 +65,7 @@ lag_finder <- function(time, # An array of numeric values which you wish to appl
   if (!is.na(window_size)){
     
     # Creating an empty dataframe to house correlative values
-    rows <- (length(x) - (window_size / 2) - abs(lags[which.max(abs(lags)]))
+    rows <- (length(x) - (window_size / 2) - abs(lags[which.max(abs(lags))]))
     cols <- length(lags)
     values <- as.data.frame(matrix(data = NA, 
                                    nrow = rows, 
