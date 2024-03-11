@@ -31,7 +31,7 @@ lag_finder <- function(lags = seq(-40,40,1), # all of the possible lags to test
     stop("The lags you submit must be a numerically structured array of 2 or more values. Please correct this and try again")
   }
   
-  if (method != "spearman" | method != "pearson"| method != "kendall"){
+  if (method != "spearman" & method != "pearson" & method != "kendall"){
     stop("This function depends upon the standard cor() function in base r. Acceptable methods include any of the methods accepted by that function. The method you submitted does not match any recognized options. Please review cor() documentation, make a correction, and try again.")
   }
   
