@@ -107,8 +107,8 @@ lag_finder <- function(time, # An array of numeric values which you wish to appl
     if (is.na(window_size)){
       
       # Generating a correlative value for this region
-      values[LAG] <- cor(df[[x]], 
-                         df[[y]], 
+      values[LAG] <- cor(df[["x"]], 
+                         df[["y"]], 
                          method = method)
     }
     
@@ -116,8 +116,8 @@ lag_finder <- function(time, # An array of numeric values which you wish to appl
     if (!is.na(window_size)){
       
       # Generate a series of correlative value for this region
-      values[,LAG] <- Sliding_Window_Cor(x = df[[x]], 
-                                         y = df[[y]],
+      values[,LAG] <- Sliding_Window_Cor(x = df[["x"]], 
+                                         y = df[["y"]],
                                          window_size = window_size,
                                          cor_method = method)
       
