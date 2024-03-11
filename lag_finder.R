@@ -48,36 +48,36 @@ lag_finder <- function(time, # An array of numeric values which you wish to appl
     
     ## Adding custom function
     source("https://raw.githubusercontent.com/wj-mitchell/neuRotools/main/Sliding_Window_Cor.R", local= T)
-  
-    }
+    
+  }
   
   # ----- FUNCTION -----
   
-  # If window has no value
+  # If we aren't using the sliding window approach
   if (is.na(window_size)){
-  
+    
     # Creating an empty array to house correlative values
     values <- NULL
-  
+    
   }
   
-  # If we want to use the sliding window function
+  # If we are using the sliding window approach
   if (!is.na(window_size)){
     
-    # Creating an empty dataframe to house correlative values
-    rows <- (length(x) - (window_size / 2) - abs(lags[which.max(abs(lags))]))
+    # Create a dataframe
+    rows <- length(x) - (window_size/2)
     cols <- length(lags)
-    values <- as.data.frame(matrix(data = NA, 
-                                   nrow = rows, 
-                                   ncol = cols,
-                                   dimnames = list(paste0("Win_",1:rows),
-                                                   paste0("Lag_", lags))))
+    values <- data.frame(matrix(data = NA,
+                                nrow = rows,
+                                ncol = cols,
+                                dimnames = list(paste0("Win_",1:rows),
+                                                paste0("Lag_", lags))))
   }
-    
+  
   # Noting time mins and maxes
   max_time <- max(time)
   min_time <- min(time)
-
+  
   # Creating a dataframe to house the Y variables
   data_y <- data.frame(time = time,
                        y = y)
@@ -115,12 +115,16 @@ lag_finder <- function(time, # An array of numeric values which you wish to appl
     # If we want to use the sliding window approach
     if (!is.na(window_size)){
       
-      # Generate a series of correlative value for this region
-      values[,LAG] <- Sliding_Window_Cor(x = df[["x"]], 
-                                         y = df[["y"]],
-                                         window_size = window_size,
-                                         cor_method = method)
+      # Identifying the indices of the dataframe that this lag covers
+      indices <- (1:nrow(values)) - lags[LAG]
+      indices <- indices[indices >= 1 & indices <= nrow(values)]
       
+      # Generate a series of correlative value for this region
+      values[indices,
+             LAG] <- Sliding_Window_Cor(x = df[["x"]], 
+                                        y = df[["y"]],
+                                        window_size = window_size,
+                                        cor_method = method)
     }
   }
   return(values)
