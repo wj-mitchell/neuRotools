@@ -65,7 +65,7 @@ lag_finder <- function(time, # An array of numeric values which you wish to appl
   if (!is.na(window_size)){
     
     # Creating an empty dataframe to house correlative values
-    rows <- (nrow(data_x) - (window_size / 2))
+    rows <- (length(x) - (window_size / 2))
     cols <- length(lags)
     values <- as.data.frame(matrix(data = NA, 
                                    nrow = rows, 
@@ -132,13 +132,9 @@ lag_finder <- function(time, # An array of numeric values which you wish to appl
 # time <- 1:20
 # lags <- seq(-4,4,1)
 # x <- sample(1:1000,20,replace = TRUE)
-# data_x <- data.frame(time,x)
-# data_y <- data.frame(time,y = x)
-# 
-# values <- lag_finder(data_x = data_x,
-#                      data_y = data_y,
-#                      time = "time",
-#                      x = "x",
-#                      y = "y",
+#  
+# values <- lag_finder(time = time,
+#                      x = x,
+#                      y = x,
 #                      lags = lags,
 #                      method = "pearson")
