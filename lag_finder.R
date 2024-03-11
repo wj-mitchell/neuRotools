@@ -129,3 +129,20 @@ lag_finder <- function(lags = seq(-40,40,1), # all of the possible lags to test
   }
   return(values)
 }
+
+# ----- TEST -----
+# If this works like it should, we should see a correlation of 1 at point 0 and mirrored, randomly determined correlations on either side of lag 0, regardless of what values x takes.
+
+# time <- 1:20
+# lags <- seq(-4,4,1)
+# x <- sample(1:1000,20,replace = TRUE)
+# data_x <- data.frame(time,x)
+# data_y <- data.frame(time,y = x)
+# 
+# values <- lag_finder(data_x = data_x,
+#                      data_y = data_y,
+#                      time = "time",
+#                      x = "x",
+#                      y = "y",
+#                      lags = lags,
+#                      method = "pearson")
