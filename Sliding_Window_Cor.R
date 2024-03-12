@@ -30,7 +30,7 @@ Sliding_Window_Cor <- function(x,
     stop("Step size must be a non-zero numeric value. Please correct this and try again")
   }
   
-  if (!is.boolean(zeroes_to_na)){
+  if (!is.logical(zeroes_to_na)){
     stop("Zeroes to na must be either TRUE or FALSE. Please correct this and try again")
   }
 
