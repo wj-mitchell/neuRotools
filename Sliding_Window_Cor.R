@@ -9,7 +9,7 @@ Sliding_Window_Cor <- function(x,
                                cor_method = "spearman",
                                zeroes_to_na = FALSE){
   
-# ----- QA CHECKS -----
+  # ----- QA CHECKS -----
   if (length(x) != length(y)){
     stop("The length of x and y do not match. Please submit two arrays of equal length and try again")
   }
@@ -33,8 +33,8 @@ Sliding_Window_Cor <- function(x,
   if (!is.logical(zeroes_to_na)){
     stop("Zeroes to na must be either TRUE or FALSE. Please correct this and try again")
   }
-
-# ----- SETUP -----
+  
+  # ----- SETUP -----
   # Checking for pacman
   if (require("pacman") == FALSE){
     install.packages("pacman")
@@ -45,15 +45,15 @@ Sliding_Window_Cor <- function(x,
   
   # Adding custom functions
   source("https://raw.githubusercontent.com/wj-mitchell/neuRotools/main/circle_shift.R", local = T)
-
-# ----- DATA PREP -----
-
+  
+  # ----- DATA PREP -----
+  
   # Calculating how many volumes there are 
   nVols <- length(x)
-
-# ----- GENERATING WINDOW -----
   
-# Generating the median and series indices 
+  # ----- GENERATING WINDOW -----
+  
+  # Generating the median and series indices 
   if ((nVols %% 2) != 0){
     median <- ceiling(nVols/2)
     series_index <- 0:nVols
@@ -63,45 +63,45 @@ Sliding_Window_Cor <- function(x,
     series_index <- 0:(nVols-1)
   }
   
-# Defining the radius of the sliding window
+  # Defining the radius of the sliding window
   window_radius <- round(window_size/2)
-
-# Creating a Gaussian distribution around the median of the series
+  
+  # Creating a Gaussian distribution around the median of the series
   gauss_dist <- exp(-((c(series_index-median)^2) / (2 * sigma^2)))
-
-# Creating an empty series on which to apply the window
+  
+  # Creating an empty series on which to apply the window
   series_window <- rep(0, nVols)
   
-# Applying the window (i.e., changing 0's to 1's)}
+  # Applying the window (i.e., changing 0's to 1's)}
   series_window[(median - window_radius + 1):(median + window_radius)] <- 1
-
-# Convolving the window we want to target with a Gaussian distribution
+  
+  # Convolving the window we want to target with a Gaussian distribution
   convol <- convolve(y = gauss_dist, 
                      x = series_window, 
                      type = "open")
   
-# Standardizing the convolution so that it peaks at 1
+  # Standardizing the convolution so that it peaks at 1
   convol <- convol/max(convol)                      
   
-# Centering the series so that the peak is at the median
+  # Centering the series so that the peak is at the median
   convol <- convol[(median + 1):(length(convol) - median + 1)] 
   
-# Shaving off any excess timepoints, in the event some are at the edges
+  # Shaving off any excess timepoints, in the event some are at the edges
   convol <- convol[1:nVols]             
   
-# ----- APPLYING THE WINDOW -----                     
-                     
-# Defining how many unique window that we will have, defined as the number of volumes, minus how large the window radius is and divided by how far apart different iterations of windows will be
-# Note that I'm using the window radius instead of the window_size; without doing that, the beginning and end timepoints are downweighted much more severely than any other timepoint on average. By using the radius, the beginning begins at a weight around 1 and end ends at a weight around 1. It might be easier to visualize with plot() if you're having trouble imagining what I'm saying 
+  # ----- APPLYING THE WINDOW -----                     
+  
+  # Defining how many unique window that we will have, defined as the number of volumes, minus how large the window radius is and divided by how far apart different iterations of windows will be
+  # Note that I'm using the window radius instead of the window_size; without doing that, the beginning and end timepoints are downweighted much more severely than any other timepoint on average. By using the radius, the beginning begins at a weight around 1 and end ends at a weight around 1. It might be easier to visualize with plot() if you're having trouble imagining what I'm saying 
   nWindow <- (nVols - window_radius) / step_size
   
-# Creating an empty dataframe to house the sliding window 
+  # Creating an empty dataframe to house the sliding window 
   cor_sw <- rep(NA, nWindow)
-
-# Identifying the indices around which each iteration of the window should center
+  
+  # Identifying the indices around which each iteration of the window should center
   indices <- (seq(1, nWindow, step_size) + (window_radius/2))
   
-# Iterating through the different windows
+  # Iterating through the different windows
   for (WINDOW in indices){
     
     # Shifting the window iteratively
@@ -135,29 +135,27 @@ Sliding_Window_Cor <- function(x,
     data_x <- data_x[cutoffs[1]:cutoffs[2]]
     data_y <- y * convol_shift 
     data_y <- data_y[cutoffs[1]:cutoffs[2]]
-
+    
     # If we aren't concerned about stagnant correlations or the data has sufficient variability
-    if (zeroes_to_na == TRUE & data_x + data_y != 0 | zeroes_to_na == FALSE){
-          
-          # Generating Correlations
-          cor_sw[which(indices == WINDOW)] <- cor(x = data_x,
-                                                  y = data_y,
-                                                  method = cor_method,
-                                                  use = cor_use) 
+    if (zeroes_to_na == TRUE & (sum(data_x) != 0 & sum(data_x) != 0) | zeroes_to_na == FALSE){
+      
+      # Generating Correlations
+      cor_sw[which(indices == WINDOW)] <- cor(x = data_x,
+                                              y = data_y,
+                                              method = cor_method,
+                                              use = cor_use) 
     }
-
+    
     # If we are concerned about stagnant correlations and the data lacks sufficient variability
-    if (zeroes_to_na == TRUE & data_x + data_y == 0){
-          
-          # Set the value of this window to 0
-          cor_sw[which(indices == WINDOW)] <- NA
+    if (zeroes_to_na == TRUE & (sum(data_x) == 0 | sum(data_x) == 0)){
+      
+      # Set the value of this window to 0
+      cor_sw[which(indices == WINDOW)] <- NA
     }
   }
   
-# ----- GENERATING OUTPUT -----
+  # ----- GENERATING OUTPUT -----
   
-# Return the correlation values
+  # Return the correlation values
   return(cor_sw)
 }
-  
-  
