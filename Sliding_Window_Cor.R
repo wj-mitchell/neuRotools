@@ -6,7 +6,8 @@ Sliding_Window_Cor <- function(x,
                                sigma = 3,
                                step_size = 1,
                                cor_use = "complete.obs",
-                               cor_method = "spearman"){
+                               cor_method = "spearman",
+                               zeroes_to_na = FALSE){
   
 # ----- QA CHECKS -----
   if (length(x) != length(y)){
@@ -27,6 +28,10 @@ Sliding_Window_Cor <- function(x,
   
   if (!is.numeric(step_size) | step_size < 1){
     stop("Step size must be a non-zero numeric value. Please correct this and try again")
+  }
+  
+  if (!is.boolean(zeroes_to_na)){
+    stop("Zeroes to na must be either TRUE or FALSE. Please correct this and try again")
   }
 
 # ----- SETUP -----
@@ -130,12 +135,23 @@ Sliding_Window_Cor <- function(x,
     data_x <- data_x[cutoffs[1]:cutoffs[2]]
     data_y <- y * convol_shift 
     data_y <- data_y[cutoffs[1]:cutoffs[2]]
-    
-    # Generating Correlations
-    cor_sw[which(indices == WINDOW)] <- cor(x = data_x,
-                                            y = data_y,
-                                            method = cor_method,
-                                            use = cor_use) 
+
+    # If we aren't concerned about stagnant correlations or the data has sufficient variability
+    if (zeroes_to_na == TRUE & data_x + data_y != 0 | zeroes_to_na == FALSE){
+          
+          # Generating Correlations
+          cor_sw[which(indices == WINDOW)] <- cor(x = data_x,
+                                                  y = data_y,
+                                                  method = cor_method,
+                                                  use = cor_use) 
+    }
+
+    # If we are concerned about stagnant correlations and the data lacks sufficient variability
+    if (zeroes_to_na == TRUE & data_x + data_y == 0){
+          
+          # Set the value of this window to 0
+          cor_sw[which(indices == WINDOW)] <- NA
+    }
   }
   
 # ----- GENERATING OUTPUT -----
