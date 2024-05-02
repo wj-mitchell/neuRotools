@@ -8,7 +8,13 @@ ConfoundReducer <- function(PIDs,
                             Components = c("Test", "Control"),
                             motion_censor = TRUE,
                             motion_censor_thresh = 0.9,
-                            check_VIF = TRUE)
+                            check_VIF = TRUE,
+                            confound_list = c("a_comp_cor_00","a_comp_cor_01","a_comp_cor_02",
+                                          "a_comp_cor_03","a_comp_cor_04","a_comp_cor_05", 
+                                          names(df)[grep(x = names(df), pattern = "^cosine*")],
+                                          names(df)[grep(x = names(df), pattern = "^trans*")], 
+                                          names(df)[grep(x = names(df), pattern = "^rot*")], 
+                                          "framewise_displacement", "dvars", "tcompcor"))
 {
     
   # Check whether this file path is valid.
@@ -68,7 +74,7 @@ ConfoundReducer <- function(PIDs,
   }
   
   # Creating a subfunction to make this all smoother
-  Reducer <- function(file = filename)
+  Reducer <- function(file = filename, confounds = confound_list)
   {
     # Check whether this file exists, and if it doesn't, print an error and give up.
     if (!file.exists(file)){
@@ -91,14 +97,6 @@ ConfoundReducer <- function(PIDs,
                          sep = '\t',
                          header = T,
                          na.strings = c("","NA","n/a"))
-        
-        # Specifying confounds
-        confounds = c("a_comp_cor_00","a_comp_cor_01","a_comp_cor_02",
-                      "a_comp_cor_03","a_comp_cor_04","a_comp_cor_05", 
-                      names(df)[grep(x = names(df), pattern = "^cosine*")],
-                      names(df)[grep(x = names(df), pattern = "^trans*")], 
-                      names(df)[grep(x = names(df), pattern = "^rot*")], 
-                      "framewise_displacement", "dvars", "tcompcor")
         
         # Subset the desired columns
         df <- subset(df, select = confounds)
