@@ -1,17 +1,17 @@
-## rucleaner.R | v2022.07.21
+## rucleaner.R | v2024.05.06
   
   # This function will reorganize any output file from the Regulating Uncertainty
   # neuro project in a format more conducive to analysis. It will automatically identify 
   # the source script the data came from and change the analysis as needed. 
   rucleaner <- function(file, # String containing the filename that must be cleaned
-                        dir, # String containing the working directory the file is contained within
-                        unit_secs = 2, # A numeric value denoting the interval of time, in seconds, that output should be displayed in.
-                                       # Data was collected frame-by-frame. A value of NA would produce unaveraged, raw output. A value of 1
-                                       # would yield data averaged on a second by second basis. A value of 60 would yield data averaged on a 
-                                       # minute by minute basis, etc.
-                        shave_secs = 17) # A numeric value denoting the interval of time, in seconds, that should be ignored/removed from the 
-                                    # beginning of data collection. So, for example, the first few seconds of naturalistic stimuli, if not
-                                    # captured using a checkerboard first, should probably be ignored in fMRI research. 
+                      dir, # String containing the working directory the file is contained within
+                      unit_secs = 2, # A numeric value denoting the interval of time, in seconds, that output should be displayed in.
+                      # Data was collected frame-by-frame. A value of NA would produce unaveraged, raw output. A value of 1
+                      # would yield data averaged on a second by second basis. A value of 60 would yield data averaged on a 
+                      # minute by minute basis, etc.
+                      shave_secs = 17) # A numeric value denoting the interval of time, in seconds, that should be ignored/removed from the 
+  # beginning of data collection. So, for example, the first few seconds of naturalistic stimuli, if not
+  # captured using a checkerboard first, should probably be ignored in fMRI research. 
 {
   # Setup ----
   # Loading packages
@@ -31,8 +31,10 @@
   if (!is.string(file) | !is.string(dir)){
     stop(paste("Both file and dir must be entered as strings. Please update file and dir to comply.", sep = " "))
   }
-  if (!is.numeric(unit_secs) & !is.na(unit_secs) | unit_secs > 300){
-    stop(paste("unit_secs must be set to either a numeric value below 300 or NA. You have entered:", unit_secs, sep = " "))
+  if (!is.na(unit_secs)){
+    if (!is.numeric(unit_secs) | unit_secs > 300){
+      stop(paste("unit_secs must be set to either a numeric value below 300 or NA. You have entered:", unit_secs, sep = " "))
+    }
   }
   if (!is.numeric(shave_secs)){
     stop(paste("shave_secs must be set to a numeric value; either 0, if you do not wish to remove any observations from the beginning of your data, or a value greater than 0. You have entered:", shave_secs, sep = " "))
@@ -67,7 +69,7 @@
                          "FirstHalf\\.mp4$|FirstHalf_comp\\.mp4$") | 
                 str_detect(df$Video,
                            "LastHalf\\.mp4$|LastHalf_comp\\.mp4$")) & !is.na(df$CertRate))
-  
+    
     Cont <- (str_detect(df$Video,
                         "Control_*") & !is.na(df$CertRate))
   }
@@ -126,16 +128,16 @@
   }
   
   if (!str_detect(string = file,
-                 pattern = "_full_")){
+                  pattern = "_full_")){
     CertStat <- strsep(source = df$CertStat,
-                            output = "status",
-                            cond = !is.na(df$Certainty.Status),
-                            pattern = "[^[:alnum:]]")
+                       output = "status",
+                       cond = !is.na(df$Certainty.Status),
+                       pattern = "[^[:alnum:]]")
     
     CertRate <- strsep(source = df$CertRate,
-                            output = "rating",
-                            cond = !is.na(df$Certainty.Status),
-                            pattern = "'|^\\[|\\]$")
+                       output = "rating",
+                       cond = !is.na(df$Certainty.Status),
+                       pattern = "'|^\\[|\\]$")
   }
   
   ## Creating a longform dataframe ----
@@ -218,7 +220,7 @@
   # Removing observations captured before the shave cutoff ----
   if (shave_secs > 0){
     df_long <- df_long[-which(df_long$Seconds < shave_secs & 
-                             !str_detect(df_long$Video, "Control")),]
+                                !str_detect(df_long$Video, "Control")),]
   }
   
   if (!is.na(unit_secs)){
@@ -229,7 +231,7 @@
       Cont_len <- floor(max(df_long$Time_Video[df_long$Video == unique(df_long$Video)[2]]))
       Cont_rows <- df_long$Video == unique(df_long$Video)[2]
     }
-
+    
     ## Creating an average dataframe ----
     if (str_detect(string = file, pattern = "_full_")){
       rows <- c(1:ceiling(Task_len / unit_secs),
@@ -243,7 +245,7 @@
                                 nrow = length(rows),
                                 ncol = length(cols),
                                 dimnames = list(rows, cols)))
-
+    
     ## Copying data from original dataframe to long form ----
     ### Variables that just copy the value in the same row as video and duplicate it many times ...
     if (str_detect(string = file, pattern = "_full_")){
@@ -254,17 +256,17 @@
       df_avg$Time_Video <- c(rep(Task_len, ceiling(Task_len / unit_secs)),
                              rep(Cont_len, ceiling(Cont_len / unit_secs)))
     }
-
+    
     if (!str_detect(string = file, pattern = "_full_")){
       df_avg$PID <- rep(df_long$PID[1], length(rows))
       df_avg$Condition <- rep(df_long$Condition[1], length(rows))
       df_avg$Video <- rep(df_long$Video[1], length(rows))
       df_avg$Time_Video <- rep(df_long$Time_Video[1], length(rows))
     }
-
+    
     df_avg$Time_Overall <- rep(df_long$Time_Overall[1], length(rows))
     df_avg$Date <- rep(df_long$Date[1], length(rows))
-
+    
     ### Variables that just copy pre-existing vectors ...
     for (h in unique(df_avg$Video)){
       target_rows <- which(df_avg$Video == h)
@@ -283,20 +285,20 @@
       }
     }
     
-
+    
     ### Variables that demand some calculations ...
     if (!str_detect(string = file, pattern = "_full_")){
       df_avg$FrameRate <- rep(max(df_long$Frame)/df_long$Time_Video[1], length(rows))
       for (i in 1:nrow(df_avg)){
         df_avg$Frame[i] <- paste(min(df_long$Frame[df_avg$SecondStart[i] & 
-                                                   df_long$Seconds <= df_avg$SecondEnd[i]]),
+                                                     df_long$Seconds <= df_avg$SecondEnd[i]]),
                                  max(df_long$Frame[df_avg$SecondStart[i] & 
-                                                   df_long$Seconds <= df_avg$SecondEnd[i]]),
+                                                     df_long$Seconds <= df_avg$SecondEnd[i]]),
                                  sep = " - ")
         df_avg$CertRate[i] <- mean(as.numeric(df_long$CertRate[df_avg$SecondStart[i] & 
-                                                               df_long$Seconds <= df_avg$SecondEnd[i]]))
-        df_avg$CertRateVar[i] <- var(as.numeric(df_long$CertRate[df_avg$SecondStart[i] & 
                                                                  df_long$Seconds <= df_avg$SecondEnd[i]]))
+        df_avg$CertRateVar[i] <- var(as.numeric(df_long$CertRate[df_avg$SecondStart[i] & 
+                                                                   df_long$Seconds <= df_avg$SecondEnd[i]]))
         if (str_detect(string = file,
                        pattern = "_cont_")){
           if (df_avg$CertRate[i] < 0){
@@ -323,25 +325,25 @@
         }
       }
     }
-
+    
     if (str_detect(string = file, pattern = "_full_")){
       df_avg$FrameRate <- c(rep(max(df_long$Frame[Task_rows]) / ceiling(Task_len / unit_secs), ceiling(Task_len / unit_secs)),
                             rep(max(df_long$Frame[Cont_rows]) / ceiling(Cont_len / unit_secs), ceiling(Cont_len / unit_secs)))
       for (h in unique(df_avg$Video)){
         for (i in which(df_avg$Video == h)){
           df_avg$Frame[i] <- paste(min(df_long$Frame[df_long$Seconds >= df_avg$SecondStart[i] & 
-                                                     df_long$Seconds <= df_avg$SecondEnd[i]  & 
-                                                     df_long$Video == h]),
+                                                       df_long$Seconds <= df_avg$SecondEnd[i]  & 
+                                                       df_long$Video == h]),
                                    max(df_long$Frame[df_long$Seconds >= df_avg$SecondStart[i] & 
-                                                     df_long$Seconds <= df_avg$SecondEnd[i]  & 
-                                                     df_long$Video == h]),
+                                                       df_long$Seconds <= df_avg$SecondEnd[i]  & 
+                                                       df_long$Video == h]),
                                    sep = " - ")
           df_avg$CertRate[i] <- mean(as.numeric(df_long$CertRate[df_long$Seconds >= df_avg$SecondStart[i] & 
-                                                                 df_long$Seconds <= df_avg$SecondEnd[i]  & 
-                                                                 df_long$Video == h]))
-          df_avg$CertRateVar[i] <- var(as.numeric(df_long$CertRate[df_long$Seconds >= df_avg$SecondStart[i] & 
                                                                    df_long$Seconds <= df_avg$SecondEnd[i]  & 
                                                                    df_long$Video == h]))
+          df_avg$CertRateVar[i] <- var(as.numeric(df_long$CertRate[df_long$Seconds >= df_avg$SecondStart[i] & 
+                                                                     df_long$Seconds <= df_avg$SecondEnd[i]  & 
+                                                                     df_long$Video == h]))
           if (h == unique(df_avg$Video)[1]){
             if (df_avg$CertRate[i] < 0){
               df_avg$CertStat[i] <- "Guilty"
@@ -369,14 +371,16 @@
     }
   }
   
-  ### Cleaning space ...
-  rm(rows, cols, h, i, Task_len, Task_rows, Cont_len, Cont_rows, strsep, target_rows) 
-
+  if (!is.na(unit_secs)){
+    ### Cleaning space ...
+    rm(rows, cols, h, i, Task_len, Task_rows, Cont_len, Cont_rows, strsep, target_rows) 
+  }
+  
   ## Output ----
   if (!is.na(unit_secs)){
     return(df_avg)
   }
   if (is.na(unit_secs)){
     return(df_long)
-    }
   }
+}
