@@ -116,7 +116,7 @@ function(PIDs,
           }
           
           # and combine them with the list
-          confounds <- c(confound_list, search_results
+          confounds <- c(confound_list, search_results)
           
         }
         
@@ -124,7 +124,7 @@ function(PIDs,
         if (is.na(confound_search)){
 
           # define the confound list as the only confounds to keep
-          confounds <- c(confound_list, search_results
+          confounds <- confound_list
                          
         }
         
