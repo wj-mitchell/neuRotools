@@ -120,7 +120,7 @@ ConfoundReducer <- function(PIDs,
         }
         
         # If a confound search was not entered
-        if (is.na(confound_search)){
+        if (is.na(confound_search[1])){
 
           # define the confound list as the only confounds to keep
           confounds <- confound_list
