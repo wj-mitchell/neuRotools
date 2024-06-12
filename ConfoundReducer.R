@@ -9,13 +9,13 @@ ConfoundReducer <- function(PIDs,
          motion_censor = TRUE,
          motion_censor_thresh = 0.9,
          check_VIF = TRUE,
-         confound_list = c(   # Allows for a list of columns names to be entered
+         confounds_list = c(   # Allows for a list of columns names to be entered
                            "a_comp_cor_00","a_comp_cor_01","a_comp_cor_02", "a_comp_cor_03","a_comp_cor_04", # Anatomical components to capture spatial physiological confounds
                            "t_comp_cor_00","t_comp_cor_01","t_comp_cor_02", "t_comp_cor_03","t_comp_cor_04", # Time-related components to capture temporal physioogical confounds 
                            "trans_x", "trans_y", "trans_z", "rot_x", "rot_y", "rot_z", # Head motion and it's derivatives
                            'trans_x_derivative1', 'trans_y_derivative1', 'trans_z_derivative1', 'rot_x_derivative1', 'rot_y_derivative1', 'rot_z_derivative1',
                            "framewise_displacement"),
-         confound_search = c(  # Allows for a list of regrex expressions which should match column names to be entered; should be set to NA if not in use. 
+         confounds_search = c(  # Allows for a list of regrex expressions which should match column names to be entered; should be set to NA if not in use. 
                             "^cosine*") # Adjusting for scanner and physiological related drifts (especially needed in long video studies)
          )
 {
@@ -77,7 +77,7 @@ ConfoundReducer <- function(PIDs,
   }
   
   # Creating a subfunction to make this all smoother
-  Reducer <- function(file = filename, confound_list = confound_list, confound_search = confound_search)
+  Reducer <- function(file = filename, confound_list = confounds_list, confound_search = confounds_search)
   {
     # Check whether this file exists, and if it doesn't, print an error and give up.
     if (!file.exists(file)){
