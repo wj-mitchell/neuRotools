@@ -2,7 +2,7 @@
 
 # Very much a work in progress.
 # Simply cuts out excess covariates that fMRIPrep generates 
-function(PIDs,
+ConfoundReducer <- function(PIDs,
          dir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep",
          runs = 2,
          Components = c("Test", "Control"),
