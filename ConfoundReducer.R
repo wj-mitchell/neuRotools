@@ -100,7 +100,8 @@ ConfoundReducer <- function(PIDs,
                          na.strings = c("","NA","n/a"))
         
         # If a confound search was entered
-        if (!is.na(confound_search)){
+        # NOTE that this is a quick and dirty solution, which should be switched out later. 
+        if (!is.na(confound_search[1])){
           
           # Create an empty array
           search_results <- NULL
