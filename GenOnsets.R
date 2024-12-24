@@ -111,12 +111,12 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
         # Calculate how many files they have in their raw directory
         # If we find any files at this path, proceed ...
         if (length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/"))) != 0){
-          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/")))
+          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/",  Folder, "/DICOM/"), pattern = "\\.dcm$"))
         }
 
         # ... but if that directory doesn't work, try this other one.
         if (length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Folder, "/DICOM/"))) != 0){
-          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Folder, "/DICOM/")))
+          nFiles <- length(list.files(paste0(RawDir, "sub-", PID, "/scans/",  Folder, "/DICOM/"), pattern = "\\.dcm$"))
         }
         
         # ... and if that didn't work, try this
