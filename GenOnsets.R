@@ -1,8 +1,8 @@
 GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       Tasks = c("3_task-1", "5_task-2"), # An array of the different run name(s) that appear on the DICOM files
-                      RawDir = "/data/Uncertainty/data/raw/", # The directory in which your DICOM files are stored
-                      BehavDir = "/data/Uncertainty/data/behav/", # The directory in which your MRI behavioral data is stored
-                      DerivDir = "/data/Uncertainty/data/deriv/pipeline_1/fmriprep/", # The directory in which your preprocessed data is stored
+                      RawDir = "/data/Social_Regulation/3_data/neuro/raw/", # The directory in which your DICOM files are stored
+                      BehavDir = "/data/Social_Regulation/3_data/neuro/behav/", # The directory in which your MRI behavioral data is stored
+                      DerivDir = "/data/Social_Regulation/3_data/neuro/deriv/pipeline_1/fmriprep/", # The directory in which your preprocessed data is stored
                       TR = 2, # The length of your repetition time in seconds
                       ShaveLength = 17, # How much time should be shaved from the beginning of your data in seconds
                       ShavedFile = F, # Whether we want to generate a separate onset file for the shaved segment
