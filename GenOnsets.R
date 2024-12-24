@@ -66,6 +66,9 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
   source("https://github.com/wj-mitchell/neuRotools/blob/main/rucleaner.R?raw=TRUE", local = T)
   # source("https://github.com/wj-mitchell/neuRotools/blob/main/gammify.R?raw=TRUE", local = T)  
   
+  # Initialize the progress bar
+  pb <- txtProgressBar(min = 0, max = length(PIDs), style = 3)
+  
   # Creating a For Loop that will Generate Our Three Column Files
   # For each participant listed ...
   for (PID in PIDs){
@@ -608,5 +611,11 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
         }
       }
     }
+    
+    # Update the progress bar
+    setTxtProgressBar(pb, PID)
   }
+  
+  # Close the progress bar when done
+  close(pb)
 }
