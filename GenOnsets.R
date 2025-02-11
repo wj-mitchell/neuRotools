@@ -3,6 +3,7 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                       RawDir = "/data/Social_Regulation/3_data/neuro/raw/", # The directory in which your DICOM files are stored
                       BehavDir = "/data/Social_Regulation/3_data/behavior/raw/", # The directory in which your MRI behavioral data is stored
                       DerivDir = "/data/Social_Regulation/3_data/neuro/deriv/pipeline_1/fmriprep/", # The directory in which your preprocessed data is stored
+                      OnsetDir = "/data/Social_Regulation/5_analysis/neuro/dir_Final_Manuscript/", # The directory in which your onsets will be outputted to; optional, if left blank, will output to a directory in the deriv directory
                       TR = 2, # The length of your repetition time in seconds
                       ShaveLength = 17, # How much time should be shaved from the beginning of your data in seconds
                       ShavedFile = F, # Whether we want to generate a separate onset file for the shaved segment
@@ -474,14 +475,19 @@ GenOnsets <- function(PIDs,  # An array of participant IDs to Process
                         pattern = "paramod")] <- Override
         }
         
+        # If an onset directory hasn't been denoted
+        if (is.na(OnsetDir)){
+          OnsetDir <- paste0(DerivDir, "sub-", PID, "/","onset")
+        }
+
         # If an onset directory doesn't already exist
-        if (!dir.exists(paste0(DerivDir, "sub-", PID, "/","onset"))){
+        if (!dir.exists(OnsetDir)){
           # Create a new directory in the participant's raw files called "Onset"
-          dir.create(paste0(DerivDir, "sub-", PID, "/","onset"))
+          dir.create(OnsetDir)
         }
         
         # Set our working directory to that onset directory
-        setwd(paste0(DerivDir, "sub-", PID, "/","onset"))
+        setwd(OnsetDir)
         
         # If we're looking at a test component
         if (COMPONENT == "Test"){{
