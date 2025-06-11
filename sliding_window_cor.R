@@ -26,9 +26,6 @@
 #' @export
 #'
 
-require(stats)
-source("https://raw.githubusercontent.com/wj-mitchell/neuRotools/main/circle_shift.R", local = T)
-
 sliding_window_cor <- function(x,
                                y,
                                window,
@@ -40,6 +37,9 @@ sliding_window_cor <- function(x,
                                n_cores = parallel::detectCores() / 2) {
   
   # ----- QUALITY CONTROL CHECKS -----
+  
+  require(stats)
+  source("https://raw.githubusercontent.com/wj-mitchell/neuRotools/main/circle_shift.R", local = T)
   
   # Confirm x and y are equal in length
   if (length(x) != length(y)){
