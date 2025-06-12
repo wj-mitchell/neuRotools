@@ -29,7 +29,7 @@ sliding_window_cor <- function(x,
                                parallelize = FALSE) {
   
   require(stats)
-  source("https://raw.githubusercontent.com/wj-mitchell/neuRotools/main/circle_shift.R", local = TRUE)
+  source("https://raw.githubusercontent.com/wj-mitchell/neuRotools/main/circle_shift.R", local = FALSE)
   
   # ----- QUALITY CONTROL CHECKS -----
   
