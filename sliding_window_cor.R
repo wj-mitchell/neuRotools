@@ -151,12 +151,24 @@ sliding_window_cor <- function(x,
     data_x <- data_x[cutoffs[1]:cutoffs[2]]
     data_y <- data_y[cutoffs[1]:cutoffs[2]]
     
-    # Check for variance in both signals
-    if ((sd(data_x) != 0 && sd(data_y) != 0) || !zeroes_to_na) {
-      # Compute the correlation between the two series within this window
+    # Check for complete cases and enough data to compute correlation
+    complete_idx <- complete.cases(data_x, data_y)
+    
+    if (sum(complete_idx) >= 2 &&
+        sd(data_x[complete_idx]) != 0 &&
+        sd(data_y[complete_idx]) != 0) {
+      
+      # Compute the correlation on complete, non-constant data
+      return(cor(data_x[complete_idx], data_y[complete_idx], method = method, use = use))
+      
+    } else if (!zeroes_to_na) {
+      
+      # If user doesn't want to convert zeroes to NA, try anyway (at their own risk)
       return(cor(data_x, data_y, method = method, use = use))
+      
     } else {
-      # If no variability and zeroes_to_na is TRUE, return NA
+      
+      # Not enough data or all-zero, return NA
       return(NA)
     }
   }
