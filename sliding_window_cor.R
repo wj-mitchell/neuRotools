@@ -139,8 +139,19 @@ generate_convolution_window <- function(nVols, window_radius, sigma) {
   # Normalize so the peak value is 1
   convol <- convol / max(convol)
   
-  # Trim the convolution to match the original series length
-  convol <- convol[(median + 1):(length(convol) - median + 1)][1:nVols]
+  # Original convolution length
+  L <- length(convol)
+  
+  # Calculate trim bounds safely
+  start_idx <- median + 1
+  end_idx <- L - median + 1
+  
+  # Clip to valid bounds
+  if (start_idx <= end_idx && (end_idx - start_idx + 1) >= nVols) {
+    convol <- convol[start_idx:end_idx][1:nVols]
+  } else {
+    stop("Invalid convolution trimming: result would be shorter than nVols.")
+  }
   
   return(convol)
 }
