@@ -23,7 +23,7 @@ sliding_window_cor <- function(x,
                                sigma = 3,
                                step = 1,
                                use = "complete.obs",
-                               method = "spearman",
+                               method = "pearson",
                                zeroes_to_na = FALSE,
                                n_cores = parallel::detectCores() / 2,
                                parallelize = FALSE) {
@@ -68,11 +68,18 @@ sliding_window_cor <- function(x,
   # Determine how many timepoints we have
   nVols <- length(x)
   
+  # Generating the median and series indices 
+  if ((nVols %% 2) != 0){
+    median <- ceiling(nVols/2)
+    series_index <- 0:nVols
+  }
+  if ((nVols %% 2) == 0){
+    median <- nVols/2
+    series_index <- 0:(nVols-1)
+  }
+  
   # Define the radius of the window (half its size)
   window_radius <- round(window / 2)
-  
-  # Define the median of the series for alignment
-  median <- ceiling(nVols / 2)
   
   # ----- CREATE A GAUSSIAN WINDOW FOR WEIGHTING -----
   convol <- generate_convolution_window(nVols, window_radius, sigma)
@@ -122,12 +129,10 @@ sliding_window_cor <- function(x,
 #' @keywords internal
 #' @description Helper function to generate Gaussian-weighted convolution window
 #' @return (numeric vector) normalized Gaussian convolution window of length nVols
-generate_convolution_window <- function(nVols, window_radius, sigma) {
-  # Define the center of the signal
-  median <- ceiling(nVols / 2)
+generate_convolution_window <- function(nVols, window_radius, sigma, median, series_index) {
   
   # Generate a Gaussian distribution centered on the median index
-  gauss_dist <- exp(-((0:(nVols - 1) - median)^2) / (2 * sigma^2))
+  gauss_dist <- exp(-((series_index - median)^2) / (2 * sigma^2))
   
   # Create a binary window of 1s centered around the median
   series_window <- rep(0, nVols)
