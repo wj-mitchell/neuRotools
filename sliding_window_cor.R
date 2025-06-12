@@ -26,7 +26,7 @@ sliding_window_cor <- function(x,
                                method = "spearman",
                                zeroes_to_na = FALSE,
                                n_cores = parallel::detectCores() / 2,
-                               parallelize = TRUE) {
+                               parallelize = FALSE) {
   
   require(stats)
   source("https://raw.githubusercontent.com/wj-mitchell/neuRotools/main/circle_shift.R", local = TRUE)
