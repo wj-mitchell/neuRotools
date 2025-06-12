@@ -82,7 +82,7 @@ sliding_window_cor <- function(x,
   window_radius <- round(window / 2)
   
   # ----- CREATE A GAUSSIAN WINDOW FOR WEIGHTING -----
-  convol <- generate_convolution_window(nVols, window_radius, sigma)
+  convol <- generate_convolution_window(nVols, window_radius, sigma, median, series_index)
   
   # ----- DEFINE THE WINDOW CENTERS AND ITERATION PLAN -----
   
