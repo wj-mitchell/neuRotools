@@ -93,7 +93,7 @@ Sliding_Window_Cor <- function(x,
   
   # Defining how many unique window that we will have, defined as the number of volumes, minus how large the window radius is and divided by how far apart different iterations of windows will be
   # Note that I'm using the window radius instead of the window_size; without doing that, the beginning and end timepoints are downweighted much more severely than any other timepoint on average. By using the radius, the beginning begins at a weight around 1 and end ends at a weight around 1. It might be easier to visualize with plot() if you're having trouble imagining what I'm saying 
-  nWindow <- (nVols - window_radius) / step_size
+  nWindow <- floor((nVols - window_radius) / step_size)
   
   # Creating an empty dataframe to house the sliding window 
   cor_sw <- rep(NA, nWindow)
