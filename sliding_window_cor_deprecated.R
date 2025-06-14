@@ -81,7 +81,7 @@ Sliding_Window_Cor <- function(x,
                      type = "open")
   
   # Standardizing the convolution so that it peaks at 1
-  convol <- convol/max(convol)                      
+  convol <- convol/max(convol)
   
   # Centering the series so that the peak is at the median
   convol <- convol[(median + 1):(length(convol) - median + 1)] 
@@ -95,11 +95,11 @@ Sliding_Window_Cor <- function(x,
   # Note that I'm using the window radius instead of the window_size; without doing that, the beginning and end timepoints are downweighted much more severely than any other timepoint on average. By using the radius, the beginning begins at a weight around 1 and end ends at a weight around 1. It might be easier to visualize with plot() if you're having trouble imagining what I'm saying 
   nWindow <- floor((nVols - window_radius) / step_size)
   
-  # Creating an empty dataframe to house the sliding window 
-  cor_sw <- rep(NA, nWindow)
-  
   # Identifying the indices around which each iteration of the window should center
-  indices <- (seq(1, nWindow, step_size) + (window_radius/2))
+  indices <- seq(window_radius + 1, nVols - window_radius, step_size)
+  
+  # Creating an empty dataframe to house the sliding window 
+  cor_sw <- rep(NA, length(indices))
   
   # Iterating through the different windows
   for (WINDOW in indices){
