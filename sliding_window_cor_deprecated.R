@@ -137,7 +137,7 @@ Sliding_Window_Cor <- function(x,
     data_y <- data_y[cutoffs[1]:cutoffs[2]]
     
     # If we aren't concerned about stagnant correlations or the data has sufficient variability
-    if ((sd(data_x) != 0 & sd(data_y) != 0) | zeroes_to_na == FALSE){
+    if ((sd(x[cutoffs[1]:cutoffs[2]]) != 0 & sd(y[cutoffs[1]:cutoffs[2]]) != 0) | zeroes_to_na == FALSE){
       
       # Generating Correlations
       cor_sw[which(indices == WINDOW)] <- cor(x = data_x,
@@ -148,7 +148,7 @@ Sliding_Window_Cor <- function(x,
     }
     
     # If we are concerned about stagnant correlations and the data lacks sufficient variability
-    if (zeroes_to_na == TRUE & (sd(data_x) == 0 | sd(data_y) == 0)){
+    if (zeroes_to_na == TRUE & (sd(x[cutoffs[1]:cutoffs[2]]) == 0 | sd(y[cutoffs[1]:cutoffs[2]]) == 0)){
       
       # Set the value of this window to 0
       cor_sw[which(indices == WINDOW)] <- NA
