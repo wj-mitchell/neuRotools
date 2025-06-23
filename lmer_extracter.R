@@ -1,8 +1,10 @@
 lmer_extracter <- function(Old_Model = NA, # The base or null model to compare against
                            New_Model, # The new or experimental model to compare 
                            Old_Model_Name = NA, # What you'd like to name the null model
-                           New_Model_Name,
-                           ICC = T){ # What you'd like to name the new model
+                           New_Model_Name, # What you'd like to name the new model
+                           ICC = T, # Whether you want an ICC calculated
+                           Singular_Thresh = 1e-4 # The treshold at which singularity is determined; default is the standard from lme4
+                           ){ 
   
   # If the pacman package manager is not currently installed on this system, install it.
   if (require("pacman") == FALSE){
@@ -22,6 +24,9 @@ lmer_extracter <- function(Old_Model = NA, # The base or null model to compare a
   results <- tidy(New_Model) %>%
     subset(.$effect == "fixed",
            select = c("term", "estimate", "std.error", "statistic", "df", "p.value"))
+  
+  # Checking if any variance component is estimated as effectively zero by comparing its smallest eigenvalue to the tolerance level, which indicates overfitting (i.e., singularity)
+  results$is_singular <- isSingular(New_Model, tol = Singular_Thresh)
   
   # Noting what model these results came from
   results$Model <- New_Model_Name
