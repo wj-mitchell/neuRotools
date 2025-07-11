@@ -96,7 +96,7 @@ Sliding_Window_Cor <- function(x,
   nWindow <- floor((nVols - window_radius) / step_size)
   
   # Identifying the indices around which each iteration of the window should center
-  indices <- seq(window_radius + 1, nVols - window_radius, step_size)
+  indices <- seq(window_radius, nVols - window_radius, step_size)
   
   # Creating an empty dataframe to house the sliding window 
   cor_sw <- rep(NA, length(indices))
