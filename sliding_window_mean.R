@@ -128,8 +128,7 @@ Sliding_Window_Mean <- function(x,
       
     # Generating Correlations
     mean_sw[which(indices == WINDOW)] <- mean
-      
-    }
+    
   }
   
   # ----- GENERATING OUTPUT -----
